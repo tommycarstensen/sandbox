@@ -1,0 +1,138 @@
+
+
+*******************************************************************************
+Sun Jan 29 23:09:58 2012
+
+
+FIT:    data read from "Biso_v_resolution.gnuplotdata" u 2:1
+        format = x:z
+        #datapoints = 9261
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+fitted parameters initialized with current variable values
+
+
+
+ Iteration 0
+ WSSR        : 1.13038e+06       delta(WSSR)/WSSR   : 0
+ delta(WSSR) : 0                 limit for stopping : 1e-05
+ lambda	  : 1.55897
+
+initial set of free parameter values
+
+a               = 23.4947
+b               = -20.9369
+
+After 2 iterations the fit converged.
+final sum of squares of residuals : 1.1303e+06
+rel. change during last iteration : -8.81055e-10
+
+degrees of freedom    (FIT_NDF)                        : 9259
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 11.0488
+variance of residuals (reduced chisquare) = WSSR/ndf   : 122.076
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+
+a               = 23.6387          +/- 0.2594       (1.097%)
+b               = -21.1484         +/- 0.5096       (2.41%)
+
+
+correlation matrix of the fit parameters:
+
+               a      b      
+a               1.000 
+b              -0.974  1.000 
+
+
+*******************************************************************************
+Sun Jan 29 23:17:36 2012
+
+
+FIT:    data read from "Biso_v_resolution.gnuplotdata" u 2:1
+        format = x:z
+        #datapoints = 9635
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+fitted parameters initialized with current variable values
+
+
+
+ Iteration 0
+ WSSR        : 1.1912e+06        delta(WSSR)/WSSR   : 0
+ delta(WSSR) : 0                 limit for stopping : 1e-05
+ lambda	  : 1.55914
+
+initial set of free parameter values
+
+a               = 23.6387
+b               = -21.1484
+
+After 2 iterations the fit converged.
+final sum of squares of residuals : 1.19089e+06
+rel. change during last iteration : -3.44933e-09
+
+degrees of freedom    (FIT_NDF)                        : 9633
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 11.1187
+variance of residuals (reduced chisquare) = WSSR/ndf   : 123.626
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+
+a               = 23.9328          +/- 0.2549       (1.065%)
+b               = -21.5905         +/- 0.5009       (2.32%)
+
+
+correlation matrix of the fit parameters:
+
+               a      b      
+a               1.000 
+b              -0.974  1.000 
+
+
+*******************************************************************************
+Mon Jan 30 12:49:10 2012
+
+
+FIT:    data read from "Biso_v_resolution.gnuplotdata" u 2:1
+        format = x:z
+        #datapoints = 15156
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+fitted parameters initialized with current variable values
+
+
+
+ Iteration 0
+ WSSR        : 1.91895e+06       delta(WSSR)/WSSR   : 0
+ delta(WSSR) : 0                 limit for stopping : 1e-05
+ lambda	  : 1.55459
+
+initial set of free parameter values
+
+a               = 23.9328
+b               = -21.5905
+
+After 2 iterations the fit converged.
+final sum of squares of residuals : 1.9186e+06
+rel. change during last iteration : -2.85391e-10
+
+degrees of freedom    (FIT_NDF)                        : 15154
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 11.252
+variance of residuals (reduced chisquare) = WSSR/ndf   : 126.607
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+
+a               = 24.1001          +/- 0.207        (0.859%)
+b               = -21.7764         +/- 0.4053       (1.861%)
+
+
+correlation matrix of the fit parameters:
+
+               a      b      
+a               1.000 
+b              -0.974  1.000 

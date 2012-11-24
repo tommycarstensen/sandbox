@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 33
+/repos/tc_sandbox/!svn/ver/20/NMR
+END
+identify_nonassigned_atoms_hccconh_sparky_tb.py
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/repos/tc_sandbox/!svn/ver/1/NMR/identify_nonassigned_atoms_hccconh_sparky_tb.py
+END
+sparta.py
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/repos/tc_sandbox/!svn/ver/20/NMR/sparta.py
+END
+peaklist_from_H1C13-HSQC_and_H1N15-HSQC_to_HCCCONH.py
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/tc_sandbox/!svn/ver/1/NMR/peaklist_from_H1C13-HSQC_and_H1N15-HSQC_to_HCCCONH.py
+END
+guess_atom_type_from_chemical_shift.py
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/repos/tc_sandbox/!svn/ver/20/NMR/guess_atom_type_from_chemical_shift.py
+END
+peaklist_from_CCONH_and_HCCCONH_to_H1C13-HSQC.py
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/repos/tc_sandbox/!svn/ver/1/NMR/peaklist_from_CCONH_and_HCCCONH_to_H1C13-HSQC.py
+END
+peaktracer.py
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/repos/tc_sandbox/!svn/ver/1/NMR/peaktracer.py
+END
+sparky2gnuplot.py
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/repos/tc_sandbox/!svn/ver/1/NMR/sparky2gnuplot.py
+END
+calculate_cs_changes_chresten.py
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/repos/tc_sandbox/!svn/ver/20/NMR/calculate_cs_changes_chresten.py
+END
+CPMG.py
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/repos/tc_sandbox/!svn/ver/1/NMR/CPMG.py
+END

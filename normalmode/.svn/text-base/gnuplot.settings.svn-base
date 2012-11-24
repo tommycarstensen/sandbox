@@ -1,0 +1,9 @@
+set terminal postscript eps enhanced color "Helvetica" 48
+set output "gnuplot.ps"
+set size 4,4
+set autoscale fix
+set xlabel "classification"
+set ylabel "max overlap"
+set xtics ("D-h-2" 0, "F-h-2" 1, "D-s-2" 2, "F-s-2" 3, "D-?-2" 4, "F-?-2" 5, "D-n-2" 6, "F-n-2" 7, "D-f-2" 8, "S-a-2" 9, "S-n-2" 10, "C----" 11)
+set xtics rotate
+plot [-1:13][0:1] "gnuplot.data" lt 0 ps 2 pt 2, "gnuplot.statistics" lt 1 lc 0 ps 0 pt 0 w errorb

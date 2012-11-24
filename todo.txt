@@ -1,0 +1,23 @@
+move crystalcontacts.py from tc_sandbox/misc to tc_sandbox/structure - merge versions
+
+
+move pdb/crystalcontacts_whatif.py to structure/crystalcontacts_whatif - check that whatif not used in crystalcontacts.py
+
+
+
+move phipsi_pseudo_plot from /misc to /structure
+
+
+rename misc/deltaphipsi2pdb.py to misc/plot_phipsi_diff_between_pdbs.py
+
+
+svn commit structure/apply_remark_transformations
+
+
+rename NMR/guess_atom_type_from_chemical_shift.py to NMR/damien_guess_atom_type_from_chemical_shift.py
+
+
+move misc/una_pca.py to other_people/una_pca.py
+
+
+build akaike.py into statistics.py

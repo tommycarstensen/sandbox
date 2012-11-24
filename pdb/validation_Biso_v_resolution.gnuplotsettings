@@ -1,0 +1,15 @@
+set size square
+set terminal postscript eps enhanced color "Helvetica" 48
+set output "validation_Biso_v_resolution.ps"
+set size 4,4
+set view map
+set autoscale fix
+set style data pm3d
+set style function pm3d
+set encoding iso_8859_1
+set title ""
+set xlabel "resolution (Angstrom)"
+set ylabel "<Biso>"
+set palette model CMY rgbformulae 7,5,15
+set pm3d map corners2color c1
+splot [:][:]"validation_Biso_v_resolution.gnuplotdata" title ""

@@ -1,0 +1,229 @@
+## HEWL sphere RMSDs
+
+import os, random
+import sys
+
+l_radii = [5,10,20,50,]
+
+atoms = 'CA'
+atoms = 'heavy'
+
+l_keys = ['mutant','wt',]
+
+cluster = 4
+
+n_loop = 1.
+
+fd = open('pdbS95bF.out','r')
+lines = fd.readlines()
+fd.close()
+line = lines[cluster]
+l_pdbs = line.split()
+for i in range(len(l_pdbs)):
+    l_pdbs[i] = l_pdbs[i][:4].lower()
+
+l_wt = [
+##    ## hexagonal
+##    '2fbb',
+##    ## not P 43 21 2
+##    '1xei', '1xej', '1xek', '1v7s', '5lym', '3lyt', '4lzt', '1uco', '7lyz', '2zq4', '1wtm', '1wtn', '1lzt', '2z12', '1ps5', '1lcn', '1lj3', '1lkr', '1hf4', '1v7t', '2lzt', '1ved', '1lks', '4lyt', '1lj4', '2d4j', '2d4k', '2d4i', '2f2n', '2z19', '1vdq', '1lma', '1aki', '1jpo', '3lzt', '1lje', '2zq3', '1ljg', '1ljf', '1lji', '1ljh', '1ljk', '1ljj', '1f0w', '1bgi', '2vb1', '1jj3', '1hsw', '1jj1', '1rcm', '1hsx', '1lys', '1f10', '1vdp',
+
+    ## P 43 21 2
+##    '1bwh', '1bwi', '1hc0', '1dpx', '3exd', '2cgi', '1qio', '6lyz', '6lyt', '1lpi', '2w1y', '3lyz', '1yl0', '193l', '5lyt', '1ykx', '2aub', '1c10', '2epe', '3lym', '1vau', '1vat', '2w1l', '2w1m', '8lyz', '1z55', '1jit', '1azf', '2a7d', '1lza', '1iee', '5lyz', '2d91', '2w1x', '1bwj', '2g4q', '2g4p', '2blx', '4lyz', '2cds', '1lsf', '1dpw', '1lsd', '1lse', '1lsb', '1lsc', '1lsa', '4lyo', '1vdt', '4lym', '1bvx', '1vds', '2yvb', '2c8p', '1bhz', '2c8o', '1jiy', '1lyo', '1lz9', '1lz8', '2lym', '2bly', '1jis', '1lyz', '194l', '2lyz', '2a7f',
+##    '1hel',
+    '1rfp',
+    '1uig',
+
+##    '2hso', '2hs9', '2hs7', ## powder diffraction
+##    '2a6u', ## powder diffraction
+##    '1ja2', '1ja6', '1ja4', ## powder diffraction
+##    '1b2k', ## iodide ions
+    ]
+d_mutants = {'1uif': 14, '1fn5': 48, '1kxw': 26, '1fly': 101, '1ir7': 77, '1flu': 66, '1ir9': 97, '1flw': 70, '1uid': 14, '1flq': 116, '1kxy': 17, '1uie': 14, '1ir8': 57, '1iot': 11, '1ios': 11, '1hem': 90, '1uic': 14, '1heo': 54, '1her': 39, '1lzd': 61}
+l_mutants = d_mutants.keys()
+
+d_pdbs = {'wt':l_wt,'mutant':l_mutants,}
+
+print 'reading HEWL overall rmsds'
+fd = open('tmp.txt','r')
+s = fd.read()
+fd.close()
+d_rmsds_overall = eval(s)
+
+def main():
+
+    d_rmsds = {} ## wt/mutant, pdb, r, res_index
+    for k in l_keys:
+        d_rmsds[k] = {}
+        for pdb in d_pdbs[k]:
+            d_rmsds[k][pdb] = {}
+            for r in l_radii:
+                d_rmsds[k][pdb][r] = {}
+                for res_index in range(129):
+                    d_rmsds[k][pdb][r][res_index] = {}
+
+    d_rmsds = parse_rmsds(d_rmsds,cluster,)
+
+    for s_mutant in l_mutants:
+        sample_and_plot_rmsds(d_rmsds, s_mutant,)
+
+    return
+
+
+def sample_and_plot_rmsds(d_rmsds, s_mutant,):
+
+##    if s_mutant != '1flq':
+##        return
+
+    print 'sample and plot'
+
+    for k in l_keys:
+        print k, s_mutant
+        l_data = []
+        if k == 'wt':
+            l_pdbs = l_wt
+            l_res_indexes = [d_mutants[s_mutant]]
+        elif k == 'mutant':
+##            l_pdbs = len(l_wt)*[s_mutant]
+            l_pdbs = 1*[s_mutant]
+            l_res_indexes = [d_mutants[s_mutant]]
+        for pdb in l_pdbs:
+            if k == 'wt' and pdb != '1rfp': ## tmp!!!
+                continue
+            for i_radius in range(len(l_radii)):
+                r = l_radii[i_radius]
+                x = i_radius
+                if k == 'mutant':
+                    x += .1
+                for
+                for i_rmsd in d_rmsds_overall:
+                for res_index in l_res_indexes:
+                    if len(d_rmsds[k][pdb][r][res_index]) < n_loop:
+                        print k, pdb, r, res_index, d_rmsds[k][pdb][r][res_index]
+                        print n_loop
+                        stop
+                    ## n_loop times
+                    for i in range(n_loop):
+                        l_rmsds = list(d_rmsds[k][pdb][r][res_index].values())
+                        l_rmsds_n = []
+                        rmsd_n = 0
+                        ## n_loop wildtype comparisons
+                        for j in range(n_loop):
+                            index = int(random.random()*len(l_rmsds))
+                            rmsd_n += l_rmsds[index]
+                            ## make sure no pdb is sampled more than once
+                            del l_rmsds[index]
+                        y = average = rmsd_n/n_loop
+                        error = 0
+##                        if average > 2.0:
+##                            print average, pdb, s_mutant
+##                            print 'res_no', d_mutants[s_mutant]
+##                            print l_indexes
+##                            print 'radius', r
+##                            print l_rmsds
+##                            stop
+                        l_data += ['%s %s %s %s\n' %(x,y,error,pdb,)]
+
+        fd = open('%i_data_%s_%s.gnu' %(cluster,s_mutant,k,),'w')
+        fd.writelines(l_data)
+        fd.close()
+
+    prefix = 'wtvmut'
+    ylabel = 'average_rmsd'
+    gnuplot(l_radii,atoms,prefix,ylabel,s_mutant,cluster,)
+
+    return
+
+
+def parse_rmsds(d_rmsds,cluster,):
+
+    print 'parsing rmsds'
+
+    for k in l_keys:
+
+        print k
+        print 'read lines start'
+        fd = open('sphere/%i_%s_%s.txt' %(cluster,atoms,k,),'r')
+        lines = fd.readlines()
+        fd.close()
+        print 'read lines end'
+        print 'looping over lines'
+        for i_line in range(len(lines)):
+            line = lines[i_line]
+            l = line.split()
+            pdb1 = l[0]
+            pdb2 = l[1]
+##            ## sugar
+##            ## 1sf6,1hew,1lzc,1lzb
+##            ## 2lyo,3lyo (acetonitrile cross linker)
+##            ## other species
+##            ## 1dkj,1dkk
+##            ## double mutant
+##            ## 1kxx
+            if pdb1 in ['1sf6','1hew','1lzc','1lzb','2lyo','3lyo','1dkj','1dkk','1kxx',]:
+                continue
+            if pdb2 in ['1sf6','1hew','1lzc','1lzb','2lyo','3lyo','1dkj','1dkk','1kxx',]:
+                continue
+            if pdb1 not in l_wt+l_mutants:
+                continue
+            if pdb2 not in l_wt+l_mutants:
+                continue
+            bm1 = int(l[2])
+            bm2 = int(l[3])
+            ## only use biomolecule 1
+            if bm1 != 1 or bm2 != 1:
+                continue
+            res_index = int(l[6])
+            bool_author_identical = l[11]
+            for i in range(len(l_radii)):
+                r = l_radii[i]
+                rmsd = float(l[7+i])
+                for pdb_a,pdb_b in [[pdb1,pdb2,],[pdb2,pdb1,],]:
+                    if k == 'wt' and pdb_a != '1rfp': ## tmp!!!
+                        continue
+                    if k == 'mutant' and '1uig' not in [pdb1,pdb2,]: ## tmp!!!
+                        continue
+                    ## continue if wildtype and wt v mutant
+                    if k == 'mutant' and pdb_a not in d_rmsds[k].keys():
+                        continue
+                    d_rmsds[k][pdb_a][r][res_index][pdb_b] = rmsd
+
+    return d_rmsds
+
+
+def gnuplot(l_radii,atoms,prefix,ylabel,s_mutant,cluster,):
+
+    print 'gnuplot', s_mutant
+
+    ## plot w errorbars u 1:2:3
+    l_settings = [
+        'set terminal postscript eps enhanced color "Helvetica" 36\n',
+        'set output "gnuplot.ps"\n',
+##        'set terminal png\n',
+##        'set output "gnuplot.png"\n',
+        'set size 3,3\n', ## scale 400%
+        'set autoscale fix\n', ## scale axes to include min and max *only* and *not* the next tic
+        'set title "%s %s"\n' %(s_mutant,d_mutants[s_mutant]+1,),
+        'set ylabel "%s"\n' %(ylabel),
+        'set xlabel "radii=%s"\n' %(l_radii),
+        'plot [:][0:1.5]"%i_data_%s_wt.gnu" u 1:2:3 w errorb lw 2 ps 4 lc 1 t "wt", "%i_data_%s_mutant.gnu" u 1:2:3 w errorb lw 2 ps 4 lc 2 t "mutant"\n' %(cluster,s_mutant,cluster,s_mutant,),
+        ]
+
+    fd = open('settings.gnu','w')
+    fd.writelines(l_settings)
+    fd.close()
+
+    os.system('/software/bin/gnuplot settings.gnu')
+
+    print 'imagemagick', s_mutant
+##    if not os.path.isfile('sphere_%s_%s_%s_%s.png' %(prefix,atoms,s_mutant,d_mutants[s_mutant],)):
+    os.system('convert gnuplot.ps sphere_%s_%s_%s_%s.png' %(prefix,atoms,s_mutant,d_mutants[s_mutant],))
+    os.system('rm gnuplot.ps')
+
+##    os.system('mv gnuplot.png sphere_%s_%s_%s_%s.png' %(prefix,atoms,s_mutant,d_mutants[s_mutant],))
+
+    return    
+
+
+if __name__ == '__main__':
+    main()

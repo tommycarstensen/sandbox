@@ -1,0 +1,134 @@
+'''this program follows MD_coulomb.py and aligns glu35 and colors glu35 and asp52 by coulomb energy between them'''
+
+import os, numpy
+import sys
+sys.path.append('/home/people/tc/svn/Protool/')
+import geometry
+
+l_atoms_align = [
+    'N','CA','C','O','CB','CG','CD',
+##    'OE1','OE2',
+    ]
+
+cwd = os.getcwd()
+cwd = cwd[-6:]
+
+ref_pdb = 'trjconv/2vb1_MD0.pdb'
+ref_res_no = [35]
+
+skip = 100
+
+fd = open(ref_pdb,'r')
+lines = fd.readlines()
+fd.close()
+l_coords_ref = []
+for line in lines:
+    if line[:4] != 'ATOM':
+        continue
+    res_no = int(line[22:26])
+    if res_no not in ref_res_no:
+        if res_no > max(ref_res_no):
+            break
+        continue
+    atom_name = line[12:16].strip()
+    if atom_name not in l_atoms_align:
+        continue
+    x = float(line[30:38])
+    y = float(line[38:46])
+    z = float(line[46:54])
+    coord = numpy.array([x,y,z,])
+    l_coords_ref += [coord]
+
+fd = open('energies_%s.txt' %(cwd),'r')
+lines_E = fd.readlines()
+fd.close()
+
+E_max = -100
+E_min = 100
+for i in range(len(lines_E)):
+    if i % skip != 0:
+        continue
+    E = float(lines_E[i].split()[1])
+    if E > E_max:
+        E_max = E
+    if E < E_min:
+        E_min = E
+if E_max-E_min > 100:
+    stop
+
+##lines_gnuplot = []
+lines_out = []
+for i in range(len(lines_E)):
+    if i % skip != 0:
+        continue
+    E = float(lines_E[i].split()[1])
+    l_coords = []
+    fd = open('trjconv/2vb1_MD%i.pdb' %(i),'r')
+    lines = fd.readlines()
+    fd.close()
+    lines_ref = []
+    instance_geometry = geometry.geometry()
+    for line in lines:
+        if line[:4] != 'ATOM':
+            continue
+        res_no = int(line[22:26])
+        if res_no not in [35,52,]:
+            if res_no > 52:
+                break
+            continue
+        lines_ref += [line]
+        atom_name = line[12:16].strip()
+        if atom_name[0] == 'H':
+            continue
+        if res_no in ref_res_no and atom_name in l_atoms_align:
+            x = float(line[30:38])
+            y = float(line[38:46])
+            z = float(line[46:54])
+            coord = numpy.array([x,y,z,])
+            l_coords += [coord]
+            continue
+
+    if len(l_coords_ref) != len(l_coords):
+        stop
+    rmsd = instance_geometry.superpose(l_coords_ref,l_coords,)
+    if i % skip == 0:
+        print i,E,rmsd
+        if E == E_min:
+            print i,E,rmsd
+        if E == E_max:
+            print i,E,rmsd
+##        lines_gnuplot += ['%s %s %s\n' %(i,E,rmsd,)]
+    tv1 = instance_geometry.fitcenter
+    rm = instance_geometry.rotation
+    tv2 = instance_geometry.refcenter
+    for line in lines_ref:
+        chain = line[21]
+        res_no = int(line[22:26])
+        x = float(line[30:38])
+        y = float(line[38:46])
+        z = float(line[46:54])
+        coord = numpy.array([x,y,z,])
+        coord = numpy.dot(coord-tv1,rm)+tv2
+        x = coord[0]
+        y = coord[1]
+        z = coord[2]
+        if res_no == 35:
+            chain = 'A'
+            res_no = i/skip+1
+        elif res_no == 52:
+            chain = 'B'
+            res_no = i/skip+1001
+        occupancy = E-E_min
+        tempfactor = E-E_min
+        lines_out += [
+            '%21s%1s%4i%4s%8.3f%8.3f%8.3f%6.2f%6.2f%s' %(
+                line[:21],chain,res_no,line[26:30],x,y,z,occupancy,tempfactor,line[66:80],
+                )
+            ]
+fd = open('3552_%s.pdb' %(cwd),'w')
+fd.writelines(lines_out)
+fd.close()
+
+##fd = open('3552_%s.gnu' %(cwd),'w')
+##fd.writelines(lines_gnuplot)
+##fd.close()

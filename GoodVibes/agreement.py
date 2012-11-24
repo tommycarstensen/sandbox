@@ -1,0 +1,140 @@
+#!/bin/env /software/bin/python2.3
+# $Id: agreement.py 111 2007-04-30 11:31:12Z tc $
+# Copyright (C) Tommy Carstensen, University College Dublin, 2007
+
+def main():
+
+    ## enable traceback, which reports non-syntax errors
+    import cgitb
+    cgitb.enable()
+
+    ## read form
+    import cgi
+    form = cgi.FieldStorage()
+
+    import time
+    t = time.gmtime()
+    timestr = '%s/%s/%s %s:%s:%s' %(t[0],str(t[1]).zfill(2),str(t[2]).zfill(2),str(t[3]).zfill(2),str(t[4]).zfill(2),str(t[5]).zfill(2))
+
+    htmlheader = '''
+<html>
+<head>
+ <title>GoodVibes Registration</title>
+ <link rel="icon" href="favicon.ico">
+ <link rel="shortcut icon" href="favicon.ico">
+</head>
+
+<body>
+
+ <a href="http://polymerase.ucd.ie/goodvibes/"><img src="http://polymerase.ucd.ie/goodvibes/logo.png" border="0"></a>
+
+ <hr>
+'''
+
+    htmltail = '\n</body>\n</html>'
+
+    if not form['name'].value:
+        htmlbody = 'Go back and fill out your name.\n'
+    elif not form['email'].value:
+        htmlbody = 'Go back and fill out your e-mail address.\n'
+    else:
+        htmlbody = '''
+<form action="http://polymerase.ucd.ie/cgi-bin/goodvibes/python/goodvibes/download.py" METHOD="POST" ENCTYPE="multipart/form-data">
+<textarea name="LicenseText" rows=25 cols=80 readonly>
+
+SOFTWARE LICENCE AGREEMENT
+
+AGREEMENT effective as of %s GMT between UNIVERSITY COLLEGE DUBLIN, NATIONAL UNIVERSITY OF IRELAND, DUBLIN of BELFIELD, DUBLIN 4, IRELAND ("Licensor") and %s [%s] ("Licensee").
+
+       WHEREAS, Licensor is the owner of certain computer software 
+and Licensee desires to use that software. 
+
+       NOW, THEREFORE, the parties agree as follows: 
+
+1. Licence and Title.
+   (a) Subject to the terms and conditions hereinafter set forth, Licensor hereby grants a perpetual nonexclusive and non-transferable licence (the "Licence") to Licensee to use the computer software package known as GoodVibes Version 1.xx, hereto (the "Software").  This Agreement shall not transfer any title or ownership rights in the Software, which shall at all times remain with Licensor.  The Licence is granted on the condition that the Software will be used solely for non-profit research and teaching purposes.
+ 
+2. Delivery of the Software. 
+   (a) Licensee can download the compressed package from the website of Licensor.
+   (b) It is understood that Licensor will provide no maintenance or installation services of any kind hereunder.  Licensor may, in its sole discretion, use reasonable efforts to assist Licensee in correcting errors brought to Licensor's attention by Licensee, except that Licensor will not be considered in breach of this Agreement if it is unable to do so.
+
+3. Location.
+   (a) Licensee may use the Software only on computers which it owns or leases. 
+   (b) If this Licence is terminated for any reason whatsoever, Licensee will destroy its copies of the Software and will so certify to Licensor that it has done so, or return such copies to Licensor.
+ 
+4. Confidentiality, Protection of Software and Licensor Information. 
+   (a) Licensee agrees that the Software and all related materials  shall be held in confidence and are being provided by Licensor for the exclusive use of Licensee.  Licensee will be responsible for maintaining and securing on behalf of Licensor the Software and related materials in its possession or under its control.
+Licensee will - 
+	(i) protect the Software and related materials in the same manner that it protects its own confidential information; 
+	(ii) permit access to the Software only to its authorized employees 
+designated by Licensee to use and maintain the Software;
+	(iii) not duplicate all or any part of the Software except for backup purposes;
+	(iv) not remove or destroy any proprietary notice on the
+Software or related materials.
+    (b) Any termination of this Agreement and the Licence hereunder shall not terminate Licensee's obligations of confidentiality under this Section 4.
+
+5. Representations.
+   (a) Licensor represents that, to the best of its knowledge, it owns the Software and the Software does not infringe upon any patent, copyright or other right of any third party.
+
+6. Disclaimer of Warranties.
+   (a) While the Software has been tested for accuracy and proper functioning, Licensor disclaims any responsibility for the accuracy or correctness of the Software or for its use or application by Licensee. Licensor is under no  obligation to correct any identified defects in the Software and to provide such corrections in any subsequent release.
+   (b) Except as set forth in Section 5 above, Licensor makes no representation or warranty either express or implied of any kind, including as to the adequacy or suitability of the software for any particular purpose or to produce any particular result and neither Licensor, nor any employee or agent of Licensor, shall have any liability to Licensee or any other person arising out of the use of the software by Licensee for any reason, including but not limited to the inadequacy or unsuitability of the software for any particular purpose or to produce any particular result, for any latent defects therein or the failure of Licensor to provide Licensee with any modifications or changes to the software.
+   (c) To the extent allowed by the law, the Licensor or its trustees, officers, agents or employees will not be liable to the Licensee or to any other party, for any loss or damages, consequential or otherwise, including, but not limited to time, money, or good will, arising from the use or operation of the Software by the Licensee.
+
+7. No Indemnity.
+   (a) The Licensor does not indemnify the user of the software. The Licensee shall be liable for claims, damages or suits arising from the acts, omissions or negligence of its officers agents and employees.
+
+8. Termination. 
+   (a) The Licensor may terminate this Agreement and the Licence granted hereunder upon 30 days written notice of Licensee's material breach of the Agreement and Licensee's failure to cure the breach within 30 days of receipt of said notice. 
+   (b) The Licensor may terminate this Agreement and the Licence granted hereunder in the event that information is received that the Software infringes  upon any patent, copyright or other right of a third party.
+
+9. General Provisions. 
+   (a) Assignment - This Agreement may not be assigned, sublicenced or transferred by Licensee without the prior written consent of Licensor.
+   (b) Governing Law - This Agreement shall be governed by Irish law and shall be subject to the exclusive jurisdiction of the Irish courts.
+   (c) Amendment - This Agreement may not be changed or terminated orally.
+   (d) If any provision of this agreement shall be found by any court or administrative body of competent jurisdiction to be invalid or unenforceable, the invalidity or unenforceability of such provision shall not affect the other provisions of this agreement and all provisions not affected by such invalidity or unenforceability shall remain in full force and effect. The parties hereby agree to attempt to substitute for any invalid or unenforceable provision, a valid or enforceable provision which achieves to the greatest extent possible the economic, legal and commercial objectives of the invalid or unenforceable provision.
+
+10. Software Charges. 
+    (a)	No fee is required.
+      
+
+       IN WITNESS WHEREOF, the parties hereto have duly executed this 
+Agreement as of the day and year first above written.
+
+
+LICENSOR electronically signed:                            
+Dr. Jens Nielsen                                           
+School of Biomolecular and Biomedical Science,
+College of Life Sciences,                                
+University College Dublin                                  
+Belfield, Dublin 4, Ireland.
+
+LICENSEE
+%s [%s]</textarea>
+''' %(
+    form['name'].value, form['email'].value,
+    timestr,
+    form['name'].value, form['email'].value
+    )
+
+        htmlbody += '<input type="hidden" name="name" value="%s">' %(form['name'].value)
+        if form['organisation'].value:
+            htmlbody += '<input type="hidden" name="organisation" value="%s">' %(form['organisation'].value)
+        else:
+            htmlbody += '<input type="hidden" name="organisation" value="N/A">'
+        htmlbody += '<input type="hidden" name="country" value="%s">' %(form['country'].value)
+        htmlbody += '<input type="hidden" name="email" value="%s">' %(form['email'].value)
+
+        htmlbody += '''
+<br>
+Do you agree to these terms and conditions?
+<br>
+<input type="submit" value="I agree to the terms and conditions for using the GoodVibes software" name="answer">
+<input type="submit" value="I do not agree" name="answer">
+</form>
+'''
+
+    print htmlheader+htmlbody+htmltail
+
+if __name__ == '__main__':
+    main()

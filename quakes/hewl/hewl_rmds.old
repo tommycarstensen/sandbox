@@ -1,0 +1,391 @@
+import numpy
+import sys
+sys.path.append('/home/people/tc/svn/tc_sandbox/misc/')
+import gnuplot
+sys.path.append('/home/people/tc/svn/tc_sandbox/pdb/')
+import parse_mmCIF
+sys.path.append('/home/people/tc/svn/Protool/')
+import geometry
+instance_geometry = geometry.geometry()
+
+fd = open('pdbS95bF.out','r')
+lines = fd.readlines()
+fd.close()
+line = lines[4]
+l_pdbs = line.split()
+for i in range(len(l_pdbs)):
+    l_pdbs[i] = l_pdbs[i].lower()
+l_wts = l_pdbs
+l_mutants = []
+
+##l_wts= [
+####    ## hexagonal
+####    '2fbb',
+####    ## not P 43 21 2
+####    '1xei', '1xej', '1xek', '1v7s', '5lym', '3lyt', '4lzt', '1uco', '7lyz', '2zq4', '1wtm', '1wtn', '1lzt', '2z12', '1ps5', '1lcn', '1lj3', '1lkr', '1hf4', '1v7t', '2lzt', '1ved', '1lks', '4lyt', '1lj4', '2d4j', '2d4k', '2d4i', '2f2n', '2z19', '1vdq', '1lma', '1aki', '1jpo', '3lzt', '1lje', '2zq3', '1ljg', '1ljf', '1lji', '1ljh', '1ljk', '1ljj', '1f0w', '1bgi', '2vb1', '1jj3', '1hsw', '1jj1', '1rcm', '1hsx', '1lys', '1f10', '1vdp',
+##    ## P 43 21 2
+##    '1bwh', '1bwi', '1hc0', '1dpx', '3exd', '2cgi', '1qio', '6lyz', '6lyt', '1lpi', '2w1y', '3lyz', '1yl0', '193l', '5lyt', '1ykx', '2aub', '1c10', '2epe', '3lym', '1vau', '1vat', '2w1l', '2w1m', '8lyz', '1z55', '1jit', '1azf', '2a7d', '1uig', '1lza', '1iee', '5lyz', '2d91', '2w1x', '1bwj', '2g4q', '2g4p', '2blx', '4lyz', '2cds', '1lsf', '1dpw', '1lsd', '1lse', '1lsb', '1lsc', '1lsa', '4lyo', '1vdt', '4lym', '1bvx', '1hel', '1vds', '2yvb', '2c8p', '1bhz', '2c8o', '1jiy', '1lyo', '1lz9', '1lz8', '2lym', '2bly', '1jis', '1lyz', '194l', '2lyz', '2a7f', '1rfp',
+####    '2hso', '2hs9', '2hs7', ## powder diffraction
+####    '2a6u', ## powder diffraction
+####    '1ja2', '1ja6', '1ja4', ## powder diffraction
+####    '1b2k', ## iodide ions
+##    ]
+##d_mutants = {'1uif': 14, '1fn5': 48, '1kxw': 26, '1fly': 101, '1ir7': 77, '1flu': 66, '1ir9': 97, '1flw': 70, '1uid': 14, '1flq': 116, '1kxy': 17, '1uie': 14, '1ir8': 57, '1iot': 11, '1ios': 11, '1hem': 90, '1uic': 14, '1heo': 54, '1her': 39, '1lzd': 61}
+##l_mutants = d_mutants.keys()
+
+l_pdbs = l_wts+l_mutants
+d_spacegroups = {}
+d_spacegroups_reverse = {}
+d_starting_model = { ## k=model,v=pdbs
+    '8lyz':['2cds',],
+##    '5lym':['1lcn',],
+    }
+d_starting_model_reverse = {'1lcn':'5lym','2cds':'8lyz',} ## k=pdb,v=model
+d_ph = {}
+d_ph_reverse = {}
+d_temperature = {}
+d_temperature_reverse = {}
+d_authors = {}
+d_authors_reverse = {}
+
+def main():
+
+    (
+        d_coordinates, d_ph,
+        d_starting_model, d_starting_model_reverse,
+        d_spacegroups, d_spacegroups_reverse,
+        d_authors, d_authors_reverse,
+        ) = parse_pdb()
+
+    (
+        d_starting_model, d_starting_model_reverse,
+        ) = trace_starting_model(d_starting_model,d_starting_model_reverse,)
+
+    l_pdbs_starting_model_grouped = group_pdbs(d_starting_model)
+    l_pdbs_spacegroup_grouped = group_pdbs(d_spacegroups)
+    l_pdbs_ph_grouped = group_pdbs(d_ph)
+    l_pdbs_temperature_grouped = group_pdbs(d_temperature)
+    l_pdbs_author_grouped = group_pdbs(d_authors)
+
+    d_rmsds = {}
+    for i in range(len(l_pdbs)):
+        pdb1 = l_pdbs[i]
+        print 'calc rmsd', i, len(l_pdbs)-1
+        print d_coordinates.keys()
+        coords1 = d_coordinates[pdb1]
+        for j in range(len(l_pdbs)):
+            if j <= i:
+                continue
+            pdb2 = l_pdbs[j]
+            coords2 = d_coordinates[pdb2]
+            rmsd = instance_geometry.superpose(coords1,coords2,)
+##            rmsd = 1
+
+            if not pdb1 in d_rmsds.keys():
+                d_rmsds[pdb1] = {}
+            d_rmsds[pdb1][pdb2] = rmsd
+
+            if not pdb2 in d_rmsds.keys():
+                d_rmsds[pdb2] = {}
+            d_rmsds[pdb2][pdb1] = rmsd
+
+    suffix = 'same_spacegroup'
+    plot(d_rmsds,l_pdbs_spacegroup_grouped,d_spacegroups_reverse,'a_spacegroup',suffix,)
+    plot(d_rmsds,l_pdbs_ph_grouped,d_ph_reverse,'b_ph',suffix,)
+    plot(d_rmsds,l_pdbs_temperature_grouped,d_temperature_reverse,'c_temperature',suffix,)
+    plot(d_rmsds,l_pdbs_author_grouped,d_authors_reverse,'e_authors',suffix,)
+    plot(d_rmsds,l_pdbs_starting_model_grouped,d_starting_model_reverse,'g_start_model',suffix,)
+
+    return
+
+
+def plot(d_rmsds,l_pdbs_spacegroup_grouped,d_spacegroups_reverse,prefix,fn_suffix,):
+
+    l_data = []
+    d_xtics = {}
+    for i1 in range(len(l_pdbs_spacegroup_grouped)):
+        pdb1 = l_pdbs_spacegroup_grouped[i1]
+        if pdb1 in l_wt:
+            suffix = 'wt'
+        else:
+            suffix = 'mutant'
+        d_xtics['%10s %s %s' %(d_spacegroups_reverse[pdb1],pdb1,suffix,)] = i1+.5
+        for i2 in range(len(l_pdbs_spacegroup_grouped)):
+            pdb2 = l_pdbs_spacegroup_grouped[i2]
+            if pdb1 == pdb2:
+                rmsd = 0
+            else:
+                rmsd = d_rmsds[pdb1][pdb2]
+            l_data += ['%i %i %f\n' %(i1,i2,rmsd,)]
+        l_data += ['%i %i %f\n' %(i1,i2+1,rmsd,)]
+        l_data += ['\n',]
+    for i2 in range(len(l_pdbs_spacegroup_grouped)):
+        l_data += ['%i %i %f\n' %(i1+1,i2,rmsd,)]
+    l_data += ['%i %i %f\n' %(i1+1,i2+1,rmsd,)]
+    gnuplot.contour_plot('%s_%s' %(prefix,fn_suffix,),l_data,d_xtics=d_xtics,d_ytics=d_xtics,)
+
+    return
+
+
+def parse_pdb():
+
+    d_coordinates = {}
+    for pdb in l_pdbs:
+
+        d_mmCIF = parse_mmCIF.main(pdb[:4],)
+
+        if len(d_mmCIF['_pdbx_poly_seq_scheme.auth_seq_num']) != 164:
+            continue
+
+        d_coords = {}
+        for i in range(len(d_mmCIF['_atom_site.label_atom_id'])):
+            if d_mmCIF['_atom_site.label_atom_id'][i] != 'CA':
+                continue
+            if d_mmCIF['_atom_site.auth_asym_id'][i] != pdb[-1].upper():
+                continue
+            if d_mmCIF['_atom_site.label_alt_id'][i] not in ['.','A',]:
+                continue
+            res_no = d_mmCIF['_atom_site.auth_seq_id'][i]
+            if res_no < 1 or res_no > 164:
+                print pdb, res_no
+                stop
+            x = d_mmCIF['_atom_site.Cartn_x'][i]
+            y = d_mmCIF['_atom_site.Cartn_y'][i]
+            z = d_mmCIF['_atom_site.Cartn_z'][i]
+            coord = numpy.array([x,y,z,])
+            d_coords[res_no] = coord
+        l_coordinates = None
+        for res_no in range(1,1+164):
+            if res_no in d_coords.keys():
+                l_coordinates += [d_coords[res_no],]
+            else:
+                l_coordinates += [None,]
+            
+        fd = open('/data/pdb-v3.2/%s/pdb%s.ent' %(pdb[1:3],pdb[:4],),'r')
+        lines = fd.readlines()
+        fd.close()
+        l_coordinates = []
+        for i_line in range(len(lines)):
+            line = lines[i_line]
+            record = line[:6].strip()
+            if record == 'ATOM':
+                chain = line[21]
+                if chain.lower() != pdb[-1]:
+                    continue
+                atom_name = line[12:16].strip()
+                if atom_name != 'CA':
+                    continue
+                altloc = line[16]
+                if altloc not in [' ','A',]:
+                    continue
+                x = float(line[30:38])
+                y = float(line[38:46])
+                z = float(line[46:54])
+                coord = numpy.array([x,y,z,])
+                l_coordinates += [coord]
+            elif record == 'REMARK':
+                remark = int(line[6:10])
+                if remark == 200:
+                    if line[12:44] == 'PH                             :':
+                        s = line[44:].strip()
+                        if s == 'NULL':
+                            ph = 'NULL'
+                        elif '-' in s:
+                            l_phs = s.split('-')
+                            if len(l_phs) != 2:
+                                stop
+                            sum_ph = 0
+                            for ph in l_phs:
+                                sum_ph += float(ph)
+                            ph = sum_ph/len(l_phs)
+                            ph = round(ph,0)
+                        else:
+                            ph = float(s)
+                            ph = round(ph,0)
+                        if not ph in d_ph.keys():
+                            d_ph[ph] = []
+                        d_ph[ph] += [pdb]
+                        d_ph_reverse[pdb] = ph
+                    elif line[12:44] == 'TEMPERATURE           (KELVIN) :':
+                        s = line[44:].strip()
+                        if ';' in s:
+                            l_temperatures = s.split(';')
+                            if ' NULL' in l_temperatures:
+                                temperature = 'NULL'
+                            else:
+                                sum_temperature = 0
+                                for temperature in l_temperatures:
+                                    sum_temperature += float(temperature)
+                                temperature = sum_temperature/len(l_temperatures)
+                                temperature = int(10*round(int(temperature)/10.))
+                        elif s == 'NULL':
+                            temperature = 'NULL'
+                        else:
+                            temperature = int(10*round(float(s)/10.))
+                        if not temperature in d_temperature.keys():
+                            d_temperature[temperature] = []
+                        d_temperature[temperature] += [pdb]
+                        d_temperature_reverse[pdb] = temperature
+                    elif line[11:26] == 'STARTING MODEL:':
+                        if pdb == '1lcn': ## not parsable
+                            continue
+                        if pdb == '2cds': ## not parsable
+                            continue
+                        l_starting_models = line[27:].replace('PDB ENTRY','').replace('.PDB','').lower().split(',')
+                        l_starting_models_clean = []
+                        for s_starting_model in l_starting_models:
+                            s_starting_model = s_starting_model.strip()
+                            if s_starting_model == '8lys': ## 8lys does not exist
+                                s_starting_model = 'null'
+                            if len(s_starting_model) != 4:
+##                                print pdb, s_starting_model
+                                s_starting_model = pdb
+                            if s_starting_model == 'none':
+                                s_starting_model = pdb
+                            if not s_starting_model in d_starting_model.keys():
+                                d_starting_model[s_starting_model] = []
+                            d_starting_model[s_starting_model] += [pdb]
+                            l_starting_models_clean += [s_starting_model]
+    ##                    l_starting_models = [s_starting_model.strip() for s_starting_model in l_starting_models]
+                        d_starting_model_reverse[pdb] = l_starting_models_clean
+##                elif remark == 280:
+            elif record == 'AUTHOR':
+                l_authors = line[10:].strip().split(',')
+            elif record == 'ENDMDL':
+                break
+            elif record == 'CRYST1':
+                spacegroup = line[55:66].strip()
+                if not spacegroup in d_spacegroups.keys():
+                    d_spacegroups[spacegroup] = []
+                d_spacegroups[spacegroup] += [pdb]
+                d_spacegroups_reverse[pdb] = spacegroup
+        if len(l_coordinates) != 164:
+            print pdb, len(l_coordinates)
+            continue
+        d_coordinates[pdb] = l_coordinates
+        if not pdb in d_starting_model_reverse.keys():
+            d_starting_model_reverse[pdb] = [pdb]
+            if not pdb in d_starting_model.keys():
+                d_starting_model[pdb] = []
+            d_starting_model[pdb] += [pdb]
+        d_authors_reverse[pdb] = l_authors
+##        if not l_authors[-1] in d_authors_reverse.keys():
+##            d_authors_reverse[l_authors[-1]] = []
+##        d_authors_reverse[l_authors[-1]] += [pdb]
+
+    l_set_authors = []
+    for pdb in d_authors_reverse.keys():
+        shared = False
+        for i in range(len(l_set_authors)):
+            set_authors = l_set_authors[i]
+            if len(set(d_authors_reverse[pdb]) & set_authors) > 0:
+##                l_set_authors[i] |= set(d_authors[pdb])
+                l_set_authors[i] &= set(d_authors_reverse[pdb])
+                shared = True
+##                if set(d_authors[pdb]) != set_authors:
+##                    print d_authors[pdb]
+##                    print set_authors
+##                    print l_set_authors[i]
+##                    stop
+                break
+        if shared == False:
+            l_set_authors += [set(d_authors_reverse[pdb])]
+
+    d_authors_reverse2 = {}
+    for pdb in d_authors_reverse.keys():
+        for i in range(len(l_set_authors)):
+            if len( set(d_authors_reverse[pdb]) & l_set_authors[i] ) > 0:
+                d_authors_reverse2[pdb] = i
+                if not i in d_authors.keys():
+                    d_authors[i] = []
+                d_authors[i] += [pdb]
+                break
+
+    return (
+        d_coordinates, d_ph,
+        d_starting_model, d_starting_model_reverse,
+        d_spacegroups, d_spacegroups_reverse,
+        d_authors, d_authors_reverse2,
+        )
+
+
+def trace_starting_model(d_staring_model,d_starting_model_reverse,):
+
+    for k in d_starting_model.keys():
+        k1 = k
+        while True:
+            if k1 == 'null' or len(k1) > 4 or k1 == '2lzh' or k1 == 'none':
+                if k1 != k:
+                    print k, k1, k2
+                    stop
+                break
+            if not k1 in d_starting_model_reverse.keys():
+                k2 = [k1]
+            else:
+                k2 = d_starting_model_reverse[k1]
+            if len(k2) == 1:
+                k2 = k2[0]
+            else:
+                print k2
+                stop
+            if k1 == k2 or k2 == 'null' or len(k2) > 4 or k2 == '2lzh' or k2 == 'none':
+                if k1 != k:
+                    print k, k1, k2
+                    d_starting_model[k1] += d_starting_model[k]
+                    del d_starting_model[k]
+                break
+            else:
+                k1 = k2
+
+    d_starting_model_reverse = {}
+    for starting_model,pdbs in d_starting_model.items():
+        for pdb in pdbs:
+            if not pdb in d_starting_model_reverse.keys():
+                d_starting_model_reverse[pdb] = []
+            d_starting_model_reverse[pdb] += [starting_model]
+
+    return d_starting_model, d_starting_model_reverse
+
+
+def group_pdbs(d_starting_model):
+
+    ## sort by count
+    l_starting_models = [[len(d_starting_model[s_starting_model]),s_starting_model,] for s_starting_model in d_starting_model.keys()]
+    l_starting_models.sort()
+##    ## sort alphabetically
+##    l_starting_models = [[s_starting_model,s_starting_model,] for s_starting_model in d_starting_model.keys()]
+##    l_starting_models.sort()
+
+    l_pdbs_starting_model_grouped = []
+    for s_starting_model in l_starting_models:
+        l_pdbs_same_model = d_starting_model[s_starting_model[1]]
+        l_pdbs_same_model.sort()
+        for pdb in l_pdbs_same_model:
+            l_pdbs_starting_model_grouped += [pdb]
+
+    return l_pdbs_starting_model_grouped
+
+
+def find_min_rmsd(d_coordinates,):
+
+##d_min_rmsd = {}
+##for pdb_mutant in l_mutants:
+##    coords_mutant = d_coordinates[pdb_mutant]
+##    min_rmsd = [9.,None,]
+##    l_rmsds = []
+##    for pdb_wt in l_wt:
+##        coords_wt = d_coordinates[pdb_wt]
+##        rmsd = instance_geometry.superpose(coords_mutant,coords_wt,)
+##        if rmsd < min_rmsd[0]:
+##            min_rmsd = [rmsd,pdb_wt,]
+##        if rmsd < 0.15:
+##            l_rmsds += [pdb_wt]
+##    d_min_rmsd[pdb_mutant] = min_rmsd
+####    print pdb_mutant, min_rmsd
+##    print pdb_mutant, l_rmsds
+##print d_min_rmsd
+
+    return
+
+if __name__ == '__main__':
+    main()

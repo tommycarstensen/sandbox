@@ -1,0 +1,335 @@
+#!/software/bin/python
+#
+#$Id$
+#
+#Tommy Carstensen, University College Dublin, 2009
+
+## script for generating crystal contacts of biological units
+
+import os, numpy, math
+import sys
+sys.path.append('/home/people/tc/svn/tc_sandbox/pdb/')
+import biounit,parse_pdb
+
+s_alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' # abcdefghijklmnopqrstuvwxyz' # 0123456789
+
+def main(pdb,):
+
+    ##
+    ## copy the pdb file from archive
+    ##
+    os.system('cp /local/data/pdb/%s/pdb%s.ent %s.pdb' %(pdb[1:3],pdb,pdb,))
+
+    ##
+    ## break if NMR structure
+    ##
+    fd = open('%s.pdb' %(pdb),'r')
+    lines_original = fd.readlines()
+    fd.close()
+    for line in lines_original:
+        if line[:6] == 'EXPDTA':
+            if line[10:13] == 'NMR':
+                NMR = True
+            else:
+                NMR = False
+            break
+    if NMR == True:
+        return [], None
+
+    ##
+    ## parse header of asu before it is removed by WHATIF
+    ##
+    fd = open('%s.pdb' %(pdb),'r')
+    lines_asu = fd.readlines()
+    fd.close()
+    d_header_original = parse_pdb.parse_header(lines_original)
+
+    ##
+    ## rename atoms with WHATIF (e.g. ASP OD1/OD2; GLU OE1/OE2; TYR and PHE CD1/CD2, CE1/CE2)
+    ##
+    whatif_in = '%s.pdb' %(pdb)
+    whatif_out = '%s_whatif.pdb' %(pdb)
+    whatif_commands = []
+    whatif(whatif_in, whatif_commands, whatif_out,)
+
+    ##
+    ## read lines of asu after WHATIF has renamed atoms
+    ##
+    fd = open('%s_whatif.pdb' %(pdb),'r')
+    lines_asu = fd.readlines()
+    fd.close()
+
+    ##
+    ## apply biounit transformation to ASU
+    ##
+    d_transformations, status = biounit.biounit().parse_pisa_multimers(pdb, d_header_original,)
+    assembly = 1
+    d_chains = biounit.biounit().write_transformed_coordinates(
+        pdb,assembly,d_transformations,lines_asu,d_header_original,
+        exclude_ligands=True, exclude_altlocs=True,
+        )
+    os.system('cp %s_1.pdb %s_biounit.pdb' %(pdb,pdb,))
+
+    ##
+    ## parse coordinates of biounit
+    ##
+    fd = open('%s_biounit.pdb' %(pdb),'r')
+    lines_biounit = fd.readlines()
+    fd.close()
+    d_header_biounit = parse_pdb.parse_header(lines_biounit)
+    d_coordinates_biounit, d_ATOMseq_biounit = parse_pdb.parse_coordinates(lines_biounit,d_header_biounit,)
+
+    ##
+    ## A) generate crystal contacts of asu
+    ##
+    whatif_in = '%s.pdb' %(pdb)
+    whatif_out = '%s_soushl.pdb' %(pdb)
+    whatif_commands = ['SOUSHL',]
+    whatif(whatif_in, whatif_commands, whatif_out,)
+
+    ##
+    ## read soushl (asu + cc)
+    ##
+    fd = open('%s_soushl.pdb' %(pdb),'r')
+    lines_soushl = fd.readlines()
+    fd.close()
+    d_coordinates_soushl, d_ATOMseq_soushl = parse_pdb.parse_coordinates(lines_soushl,d_header_original,parse_atom_seq=False,)
+##    os.remove('%s_soushl.pdb' %(pdb))
+
+    ##
+    ## B) identify TRUE crystal contacts within asu (vicinal to biounit)
+    ## C) identify FALSE crystal contacts within biounit (identical to biounit)
+    ## D) identify FALSE crystal contacts of asu (distant to biounit)
+    ##
+    ## new lines
+    lines_true_contacts = []
+    j = 0
+    l = [[v,k[0]] for k,v in d_chains.items()]
+    d_chains = dict(l)
+    d_radii_vdw = {
+##        'H':1.20, ## Wikipedia
+        'H':1.00, ## WHATIF
+##        'C':1.70, ## Wikipedia
+        'C':1.80, ## WHATIF
+##        'N':1.55, ## Wikipedia
+        'N':1.70, ## WHATIF
+##        'O':1.52, ## Wikipedia
+        'O':1.40, ## WHATIF
+##        'S':1.80, ## Wikipedia
+        'S':2.00, ## WHATIF
+        }
+    set_chains = set()
+    ## loop over soushl lines
+    vicinal = True
+    print 'loop over soushl lines'
+    for i in range(len(lines_soushl)):
+
+        if i < j:
+            if vicinal == False:
+                print lines_soushl[i]
+                print lines_soushl[j]
+                stop_temp
+            continue
+
+        line = lines_soushl[i]
+        print line,
+        record = line[:6].strip()
+        if record in ['ATOM','HETATM',]:
+            atom_name = line[12:16].strip()
+            res_name = line[17:20].strip()
+            chain = line[21]
+            res_no = int(line[22:26])
+            iCode = line[26]
+            x = float(line[30:38])
+            y = float(line[38:46])
+            z = float(line[46:54])
+
+            ## not a modified residue?
+            if record == 'HETATM':
+                print d_header['HET'][chain][res_no][iCode][res_name]
+                print atom_name, d_coordinates_biounit['chains'][chain]['residues'][res_no]['d_iCodes'][iCode]['atoms'].keys()
+                stop
+
+            soushl_is_biounit = False
+            for k,v in d_chains.items():
+                if v == chain:
+                    chain_biounit = k
+                    if atom_name in d_coordinates_biounit['chains'][chain_biounit]['residues'][res_no]['d_iCodes'][iCode]['atoms'].keys():
+                        coordinate_biounit = d_coordinates_biounit['chains'][chain_biounit]['residues'][res_no]['d_iCodes'][iCode]['atoms'][atom_name]['coordinate']
+                    elif atom_name == "O'" and 'O' in d_coordinates_biounit['chains'][chain_biounit]['residues'][res_no]['d_iCodes'][iCode]['atoms'].keys():
+                        coordinate_biounit = d_coordinates_biounit['chains'][chain_biounit]['residues'][res_no]['d_iCodes'][iCode]['atoms']['O']['coordinate']
+                    elif atom_name == 'O' and "O'" in d_coordinates_biounit['chains'][chain_biounit]['residues'][res_no]['d_iCodes'][iCode]['atoms'].keys():
+                        coordinate_biounit = d_coordinates_biounit['chains'][chain_biounit]['residues'][res_no]['d_iCodes'][iCode]['atoms']["O'"]['coordinate']
+                    elif atom_name in d_header_biounit['REMARK470']['chains'][chain_biounit]['residues'][res_no]['d_iCodes'][iCode]['atoms'].keys():
+                        stop_temp
+                        pass
+                    else:
+                        print chain, chain_biounit, res_no, iCode, atom_name
+                        stop
+
+                    ##
+                    ## FALSE CONTACT (soushl = asymmetric unit)
+                    ##
+                    if x == coordinate_biounit[0] and y == coordinate_biounit[1] and z == coordinate_biounit[2]:
+                        soushl_is_biounit = True
+                        break
+
+            ##
+            ## c) FALSE CONTACT (soushl = biounit)
+            ##
+            if soushl_is_biounit == True:
+                continue
+            ##
+            ## B,C,D)
+            ##
+            else:
+                vicinal = False
+                coordinate_soushl = numpy.array([x,y,z,])
+                ## check against atoms in biounit
+                for chain_biounit in d_coordinates_biounit['chains'].keys():
+##                    ## skip 
+##                    if chain_biounit != d_chains[chain_biounit]:
+##                        continue
+                    for res_no_biounit in d_coordinates_biounit['chains'][chain_biounit]['residues'].keys():
+                        for iCode_biounit in d_coordinates_biounit['chains'][chain_biounit]['residues'][res_no_biounit]['d_iCodes'].keys():
+                            ## check all atoms against each other
+                            for atom_name_biounit in d_coordinates_biounit['chains'][chain_biounit]['residues'][res_no_biounit]['d_iCodes'][iCode_biounit]['atoms'].keys():
+                                coordinate_biounit = d_coordinates_biounit['chains'][chain_biounit]['residues'][res_no_biounit]['d_iCodes'][iCode_biounit]['atoms'][atom_name_biounit]['coordinate']
+                                dist = math.sqrt(sum((coordinate_soushl-coordinate_biounit)**2))
+                                dist_treshold = d_radii_vdw[atom_name[0]] + d_radii_vdw[atom_name_biounit[0]] + .25 ## will not work for elements with 2 characters
+
+                                if dist == 0:
+                                    stop
+                                ##
+                                ## B) TRUE CONTACT (soushl vicinal to biounit)
+                                ##
+                                elif dist < dist_treshold:
+                                    vicinal = True
+                                    for j in range(i,-1,-1):
+                                        if lines_soushl[i][21:27] != lines_soushl[j][21:27]:
+                                            break
+                                    j_min = j+1
+                                    for j in range(i,len(lines_soushl)):
+                                        if lines_soushl[i][21:27] != lines_soushl[j][21:27]:
+                                            break
+                                    j_max = j
+                                    lines_residue = lines_soushl[j_min:j_max]
+                                    for k in range(len(lines_residue)):
+                                        lines_residue[k] = lines_residue[k][:21]+chain_biounit+lines_residue[k][22:]
+                                    lines_true_contacts += lines_residue
+                                    break
+                                ##
+                                ## D) FALSE CONTACT (soushl distant from biounit)
+                                ##
+                                else:
+                                    ## break and proceed to next residue if atom in biounit is very distant
+                                    if dist > 20:
+                                        break
+                                    continue
+                            if vicinal == True:
+                                break
+                        if vicinal == True:
+                            break
+                    if vicinal == True:
+                        break
+
+    fd = open('tmp.pdb','w')
+    fd.writelines(lines_true_contacts)
+    fd.close()
+
+    ##
+    ## E) apply biounit transformation to crystal contacts
+    ##
+
+    ## apply pisa transformations
+    d_chains = biounit.biounit().write_transformed_coordinates(
+        pdb,assembly,d_transformations,lines_true_contacts,d_header_original,
+        exclude_ligands=True, exclude_altlocs=True,
+        )
+    os.rename('%s_1.pdb' %(pdb,),'%s_crystalcontacts.pdb' %(pdb,))
+
+    ##
+    ## assign new chain ID to crystal contacts
+    ##
+
+    ## identify new chain ID
+    l = list(set(s_alphabet)-set(d_coordinates_biounit['chains'].keys()))
+    l.sort()
+    cc_chain = l[0]
+
+    ## change chain IDs
+    fd = open('%s_crystalcontacts.pdb' %(pdb,),'r')
+    lines_cc1 = fd.readlines()
+    fd.close()
+    lines_cc2 = []
+    for line in lines_cc1:
+        lines_cc2 += [line[:21]+cc_chain+line[22:]]
+    
+    line = 'CCC   %1s%s\n' %(cc_chain,(80-7)*' ',)
+
+    ## concatenate lines
+    lines = [line]+lines_biounit+lines_cc2
+
+    ## write lines
+    fd = open('%s_crystalcontacts.pdb' %(pdb,),'w')
+    fd.writelines(lines)
+    fd.close()
+    
+    return lines, cc_chain
+
+
+def whatif(whatif_in,l_whatif_commands,whatif_out,):
+
+    source = 'whatif.src'
+    lines = [
+        '/software/whatif/DO_WHATIF.COM <<EOF\n',
+        'GETMOL %s\n' %(whatif_in,),
+        '%s\n' %(whatif_in,), ## name the soup
+        '%DELWAT\n',
+        '%DELLIG\n',
+        ]
+    for s_whatif_command in l_whatif_commands:
+        lines += ['%%%s\n' %(s_whatif_command)]
+    lines += [
+        '%MAKMOL\n',
+        '\n', ## The file header will be copied from a PDB file. Hit return for the default header that has no information in it.
+        '%s\n' %(whatif_out),
+        'TOT 0\n',
+        '\n', ## REMARKS
+        'STOP\n',
+        'Y\n',
+        ]
+    fd = open(source,'w')
+    fd.writelines(lines)
+    fd.close()
+    if os.path.isfile('%s' %(whatif_out)):
+        os.remove('%s' %(whatif_out))
+    os.system('source %s' %(source))
+
+    ## clean up after WHATIF
+    os.system('rm fort.35 DRG* DAVADRUG.PDB ALTERR.LOG PDBFILE WHATIF.FIG pdbout.tex')
+    os.system('rm FOR*.DAT pdbout.txt')
+    os.remove('whatif.src')
+
+    return
+
+
+if __name__ == '__main__':
+    for pdb in [
+##        '1rgg',
+
+##        '2hhb', ## tetramer
+##        '1hho', ## dimer
+        '1hv4', ## two tetramers
+        
+##    ##    '2lzm',
+##        '2lzt',
+        ]:
+        main(pdb)
+
+##    ## remove other assemblies
+##    for i in range(100):
+##        if os.path.isfile('%s_%i.pdb' %(pdb,i,)):
+##            os.remove('%s_%i.pdb' %(pdb,i,))
+##        else:
+##            break

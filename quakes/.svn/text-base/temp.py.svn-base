@@ -1,0 +1,8 @@
+import os
+path = '/oxygenase_local/data/biounit/'
+subdirs = os.listdir(path)
+for subdir in subdirs:
+    files = os.listdir(path+subdir)
+    for file in files:
+        if file[-2:] == 'gz':
+            os.system('gunzip %s%s/%s' %(path,subdir,file))

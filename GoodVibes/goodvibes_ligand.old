@@ -1,0 +1,629 @@
+##!/bin/env /usr/bin/python
+##
+##$Id$
+##
+##Tommy Carstensen, University College Dublin, December 2009
+
+
+import numpy, math, sys, optparse
+sys.path.append('/home/people/tc/svn/Protool/')
+import geometry
+
+
+##
+## settings
+##
+
+## cutoff distance (Angstrom)
+dist_co = 6
+## maximum distance from selected atoms (Angstrom)
+##dist_max = 2
+dist_max = 6
+dist_max_sq = dist_max**2
+##l_atoms = ['N','CA','C','O',]
+l_atoms = ['CA',]
+## minimum distance from any atom (Angstrom)
+##dist_min = 1.5
+dist_min = 3
+dist_min_sq = dist_min**2
+## shell size (Angstrom)
+shell = 4
+## grid size (Angstrom)
+grid = 2
+
+##
+## input
+##
+bool_error = False
+if not '--pdb' in sys.argv:
+    print 'specify input pdb file with --pdb'
+    bool_error = True
+if not '--chain' in sys.argv:
+    print 'specify input chain with --chain'
+    bool_error = True
+if bool_error == True:
+    stop_input_missing
+pdb = sys.argv[sys.argv.index('--pdb')+1]
+chain = sys.argv[sys.argv.index('--chain')+1]
+##pdb_holo = sys.argv[sys.argv.index('--pdb_holo')+1]
+##chain_holo = sys.argv[sys.argv.index('--chain_holo')+1]
+##ligand_ID = sys.argv[sys.argv.index('--ligand_ID')+1]
+
+
+def main():
+
+
+    ## parse coordinates
+    print 'a'
+    d_coords = parse_pdb_coordinates(pdb,chain,)
+
+    ## parse alpha carbon atoms
+    print 'b'
+    l_coords_protein_alpha = parse_alpha_carbon_atoms(d_coords,)
+
+    ## calulate hessian matrix
+    print 'c'
+    matrix_hessian_protein = do_interactions(l_coords_protein_alpha,)
+    ## diagonalize hessian matrix
+    print 'd'
+    eigenvalues_protein, eigenvectors_protein = diagonalize_matrix(matrix_hessian_protein,)
+
+    ## determine dimensions of protein
+    print 'e'
+    d_dimensions = determine_protein_dimensions(l_coords_protein_alpha,)
+    ## add probe atoms
+    print 'f'
+    l_coords_probe = add_probe_atoms(d_coords,d_dimensions,)
+
+##    ## tmp if 46, 53, 40 in 2p9q
+##    l_coords_probe = l_coords_probe[:636]+l_coords_probe[637:]
+
+    ## calculate overlaps
+    print 'g'
+    l_overlaps = []
+    for i in range(len(l_coords_probe)):
+
+        coord_holo = l_coords_probe[i]
+
+        l_coords = l_coords_protein_alpha+[coord_holo]
+
+        matrix_hessian_holo = do_interactions(l_coords)
+
+        eigenvalues_holo, eigenvectors_holo = diagonalize_matrix(matrix_hessian_holo)
+
+        l = []
+        for mode_holo in range(6,10,):
+            overlap = calc_overlap(
+                eigenvectors_protein,eigenvectors_holo,
+                mode_holo = mode_holo,
+                )
+            l += [overlap]
+            if overlap > 0.9:
+                break
+        overlap_max = max(l)
+
+        print pdb, i, len(l_coords_probe), overlap_max
+
+        if overlap_max < 0.9:
+            overlap_max = l[0]
+        l_overlaps += [overlap_max]
+        if overlap_max < 0.90:
+            print pdb, i+1, len(l_coords_probe), overlap
+            print calc_overlap(
+                eigenvectors_protein,eigenvectors_holo,
+                mode_holo = 7,
+                )
+            
+##    fd = open('l_overlaps.txt','r')
+##    s = fd.read()
+##    fd.close()
+##    l_overlaps = s.split()
+##    l_overlaps = l_overlaps[1::2]
+
+    ## combine protein and probe coordinates and add bfactors
+    print 'h'
+
+##    d_coords_holo = parse_pdb_coordinates(pdb_holo,chain_holo,)
+##    if len(d_coords.keys()) != len(d_coords_holo.keys()):
+##        print len(d_coords.keys())
+##        print len(d_coords_holo.keys())
+##        stop
+##    l_coords_protein_alpha_holo = parse_alpha_carbon_atoms(d_coords_holo,)
+##    instance_geometry = geometry.geometry()
+##    rmsd = instance_geometry.superpose(l_coords_protein_alpha,l_coords_protein_alpha_holo,)
+##    tv1 = instance_geometry.fitcenter
+##    rm = instance_geometry.rotation
+##    tv2 = instance_geometry.refcenter
+##    parse_ligand_coordinates(pdb_holo,chain_holo,ligand_ID,)
+
+    write_pdb(l_overlaps,l_coords_probe,pdb,chain,)
+
+    return
+
+
+##def parse_ligand_coordinates(pdb,chain,ligand_ID,):
+##
+##    fd = open('/data/pdb-v3.2/%s/pdb%s.ent' %(pdb[1:3],pdb,),'r')
+##    lines = fd.readlines()
+##    fd.close()
+##
+##    d_coordinates = {}
+##    for line in lines:
+##        record = line[:6].strip()
+##
+##
+##    return
+
+
+def calc_overlap(eigenvectors_protein,eigenvectors_extra,mode_holo,):
+
+    mode_apo = 6
+
+    v1 = eigenvectors_protein[mode_apo]
+    v2 = eigenvectors_extra[mode_holo][:-3]
+
+    numerator = 0
+    for i in range(len(v1)):
+        numerator += v1[i]*v2[i]
+
+    denominator1 = 0
+    denominator2 = 0
+    for i in range(len(v1)):
+        denominator1 += v1[i]*v1[i]
+        denominator2 += v2[i]*v2[i]
+    denominator = math.sqrt(denominator1*denominator2)
+
+    overlap = abs(numerator/denominator)
+
+    return overlap
+
+
+def parse_alpha_carbon_atoms(d_coords,):
+
+    l_coords_protein_alpha = []
+    l_atom_nos = d_coords.keys()
+    l_atom_nos.sort()
+    
+    for atom_no in l_atom_nos:
+        d = d_coords[atom_no]
+        atom_name = d['atom_name']
+        coord = d['coord']
+        if atom_name == 'CA':
+            l_coords_protein_alpha += [coord]
+
+    return l_coords_protein_alpha
+
+def diagonalize_matrix(matrix_hessian):
+
+    ## diagonalize hessian matrix
+    eigen_tuple = numpy.linalg.eigh(matrix_hessian)
+    ## parse eigenvalues and eigenvectors
+    eigenvalues = list(eigen_tuple[0])
+    eigenvectors = list(eigen_tuple[1])
+    eigenvectors = numpy.transpose(eigenvectors) ## transpose when diagonalization with numpy instead of Numeric
+    ## organize eigenvalues and eigenvectors together in list
+    eigen_list = zip(eigenvalues, eigenvectors)
+    ## sort by eigenvalues
+    eigen_list.sort()
+    ## parse eigenvalues and eigenvectors sorted together
+    eigenvalues = [eigen_list[eigen][0] for eigen in range(len(eigen_list))]
+    eigenvectors = [eigen_list[eigen][1] for eigen in range(len(eigen_list))]
+
+    return eigenvalues, eigenvectors
+
+
+def determine_protein_dimensions(l_coords_alpha,):
+
+    d_dimensions = {
+        'x':{
+            'min': 999.999,
+            'max':-999.999,
+            },
+        'y':{
+            'min': 999.999,
+            'max':-999.999,
+            },
+        'z':{
+            'min': 999.999,
+            'max':-999.999,
+            },
+        }
+
+    for coord_set in l_coords_alpha:
+
+        x = coord_set[0]
+        y = coord_set[1]
+        z = coord_set[2]
+
+        for coord,k_coord in [
+            [x,'x',],
+            [y,'y',],
+            [z,'z',],
+            ]:
+            if coord < d_dimensions[k_coord]['min']:
+                d_dimensions[k_coord]['min'] = coord
+            if coord > d_dimensions[k_coord]['max']:
+                d_dimensions[k_coord]['max'] = coord
+
+    return d_dimensions
+
+
+def do_interactions(l_coords):
+
+    N = 3*len(l_coords)
+    matrix_hessian = numpy.zeros((N,N), dtype=float)
+
+    row_sup = 0
+    col_sup = 0
+    for row_sup in range(len(l_coords)):
+        xi = l_coords[row_sup][0]
+        yi = l_coords[row_sup][1]
+        zi = l_coords[row_sup][2]
+        for col_sup in range(row_sup+1,len(l_coords)):
+            xj = l_coords[col_sup][0]
+            yj = l_coords[col_sup][1]
+            zj = l_coords[col_sup][2]
+
+            vx = xj-xi
+            vy = yj-yi
+            vz = zj-zi
+            vector = [vx,vy,vz,]
+
+            dist_sq = vx**2+vy**2+vz**2
+            dist = math.sqrt(dist_sq)
+            factor = do_sigmoid_factor(dist)
+
+            for row_sub in range(3):
+                for col_sub in range(3):
+
+                    if col_sub >= row_sub: #fill supersymmetrical elements when j>=i
+                        if dist_sq == 0:
+                            print row_sub, col_sub, row_sup, col_sup
+                            stop
+                        value = factor*-vector[row_sub]*vector[col_sub]/dist_sq
+
+                        matrix_hessian[3*row_sup+row_sub,3*col_sup+col_sub] = value ##upper super off-diagonal; xixj, xiyj, xizj, yiyj, yizj, zizj
+                        matrix_hessian[3*col_sup+col_sub,3*row_sup+row_sub] = value ##lower super off-diagonal; xjxi, yjxi, zjxi, yjyi, zjyi, zjzi
+                        matrix_hessian[3*row_sup+row_sub,3*row_sup+col_sub] -= value ##super diagonal (row); xixi, xiyi, xizi, yiyi, yizi, zizi
+                        matrix_hessian[3*col_sup+col_sub,3*col_sup+row_sub] -= value ##super diagonal (col); xjxj, yjxj, zjxj, yjyj, zjyj, zjzj
+                        if col_sub > row_sub: #fill lower subsymmetrical elements
+                            matrix_hessian[3*row_sup+col_sub,3*col_sup+row_sub] = value #upper super off-diagonal; yixj, zixj, ziyj
+                            matrix_hessian[3*col_sup+row_sub,3*row_sup+col_sub] = value #lower super off-diagonal; xjyi, xjzi, yjzi
+                            matrix_hessian[3*row_sup+col_sub,3*row_sup+row_sub] -= value ##super diagonal; yixi, zixi, ziyi
+                            matrix_hessian[3*col_sup+row_sub,3*col_sup+col_sub] -= value ##super diagonal; yjxj, zjxj, zjyj
+
+    return matrix_hessian
+
+
+def do_sigmoid_factor(x):
+
+    slope = 1
+    y = 1. / ( 1. + math.exp( slope*(x-dist_co) ) )
+
+    return y
+
+
+def parse_pdb_coordinates(pdb,chain,):
+
+    fd = open('/data/pdb-v3.2/%s/pdb%s.ent' %(pdb[1:3],pdb,),'r')
+    lines = fd.readlines()
+    fd.close()
+
+    l_modres = []
+
+    d_coordinates = {}
+    for line in lines:
+        record = line[:6].strip()
+
+        if record in ['HETATM','ATOM',]:
+            atom_no = int(line[6:11])
+            atom_name = line[12:16].strip()
+            altloc = line[16]
+            chain_atom = line[21]
+            res_no = int(line[22:26])
+            iCode = line[26]
+            if chain_atom != chain:
+                continue
+            if record == 'HETATM' and '%1s%4i%1s' %(chain_atom,res_no,iCode,) not in l_modres:
+                continue
+            if altloc not in [' ','A','1',]:
+                print line
+                continue
+            x = float(line[30:38])
+            y = float(line[38:46])
+            z = float(line[46:54])
+            coord = numpy.array([x,y,z,])
+            d_coordinates[atom_no] = {
+                'atom_name':atom_name,
+                'coord':coord,
+                }
+
+        elif record == 'MODRES':
+            modres_chain = line[16]
+            res_no = int(line[18:22])
+            iCode = line[22]
+            if modres_chain != chain:
+                continue
+            l_modres += ['%1s%4i%1s' %(modres_chain,res_no,iCode,)]
+
+    return d_coordinates
+            
+
+def add_probe_atoms(d_coords,d_dimensions,):
+
+    l_atom_nos = d_coords.keys()
+    l_atom_nos.sort()
+
+##    ## avoid placing probe next to terminal mobile residues (should be by residue number)
+##    l_atom_nos = l_atom_nos[20:-20]
+
+    l_coords_probe = []
+    l_pdb_coords_solvent = []
+
+    d_class = {}
+
+    for x in range(int(d_dimensions['x']['min'])-shell,int(d_dimensions['x']['max'])+shell+1,grid):
+        print x
+        d_class[x] = {}
+        for y in range(int(d_dimensions['y']['min'])-shell,int(d_dimensions['y']['max'])+shell+1,grid):
+            d_class[x][y] = {}
+            for z in range(int(d_dimensions['z']['min'])-shell,int(d_dimensions['z']['max'])+shell+1,grid):
+                d_class[x][y][z] = {}
+
+                bool_vicinal = False
+                bool_not_distant = False
+##                bool_not_distant = 0
+
+                l_coords_not_distant = []
+                for atom_no_protein in l_atom_nos:
+
+                    d = d_coords[atom_no_protein]
+                    atom_name_protein = d['atom_name']
+                    coord_protein = d['coord']
+
+                    ## skip if hydrogen atoms
+                    if atom_name_protein[0] == 'H':
+                        continue
+
+##                    if not atom_name_protein in l_atoms:
+##                        continue
+
+                    dist_sq = (
+                        (x-coord_protein[0])**2
+                        +
+                        (y-coord_protein[1])**2
+                        +
+                        (z-coord_protein[2])**2
+                        )
+                    if dist_sq < dist_min_sq:
+                        bool_vicinal = True
+##                    if dist_sq < dist_max_sq:
+##                    if atom_name_protein == 'CA' and dist_sq < dist_max_sq:
+##                    if atom_name_protein in ['N','CA','CB','C','O',] and dist_sq < dist_max_sq:
+                    if atom_name_protein in l_atoms and dist_sq < dist_max_sq:
+                        bool_not_distant = True
+                        ## only do angle between alpha carbon atoms
+                        if atom_name_protein == 'CA':
+                            l_coords_not_distant += [coord_protein]
+##                        bool_not_distant += 1
+                    if bool_vicinal == True:
+                        break
+
+                if bool_vicinal == False:
+                    if bool_not_distant == True:
+                        
+                        l_coords_probe += [numpy.array([x,y,z,])]
+                        d_class[x][y][z]['class'] = 'possible_pocket'
+                        
+##                        d_class[x][y][z]['class'] = 'not_pocket'
+##                        if len(l_coords_not_distant) > 1:
+##                            for i in range(len(l_coords_not_distant)-1):
+##                                coord1 = l_coords_not_distant[i]
+##                                v1 = coord1-numpy.array([x,y,z,])
+##                                for j in range(i+1,len(l_coords_not_distant)):
+##                                    coord2 = l_coords_not_distant[j]
+##                                    v2 = coord2-numpy.array([x,y,z,])
+##                                    ## angle larger than 90'
+##                                    if numpy.dot(v1,v2) < 0:
+##                                        d_class[x][y][z]['class'] = 'possible_pocket'
+##                                        l_coords_probe += [numpy.array([x,y,z,])]
+##                                        break
+                                    
+                    elif bool_not_distant == False:
+                        d_class[x][y][z]['class'] = 'distant'
+                elif bool_vicinal == True:
+                    d_class[x][y][z]['class'] = 'protein'
+##                else:
+##                    d_class[x][y][z] = 'solvent'
+
+    sys.path.append('/home/people/tc/svn/tc_sandbox/misc/')
+    import combinatorics
+    l_translations = combinatorics.permutation_w_rep([-1,0,1,],3)
+##    l_translations = combinatorics.permutation_w_rep([-2,-1,0,1,2,],5)
+    l_translations.remove([0,0,0,])
+
+    l_overlaps = []
+
+    d_class_grid = {}
+    for x in range(int(d_dimensions['x']['min'])-shell,int(d_dimensions['x']['max'])+shell+1,grid):
+        print x
+        d_class_grid[x] = {}
+        for y in range(int(d_dimensions['y']['min'])-shell,int(d_dimensions['y']['max'])+shell+1,grid):
+            d_class_grid[x][y] = {}
+            for z in range(int(d_dimensions['z']['min'])-shell,int(d_dimensions['z']['max'])+shell+1,grid):
+                count_pocket = 1 ## point itself is pocket
+                count_protein = 0
+                count_distant = 0
+                if d_class[x][y][z]['class'] != 'possible_pocket':
+                    continue
+
+                for translation in l_translations:
+                    try:
+                        Class = d_class[x+translation[0]*grid][y+translation[1]*grid][z+translation[2]*grid]['class']
+                        if Class == 'possible_pocket':
+                            count_pocket += 1
+                        elif Class == 'protein':
+                            count_protein += 1
+                        elif Class == 'distant':
+                            count_distant += 1
+                    except:
+                        None
+
+                count_pocket_min = 16
+                count_protein_min = 18
+                count_distant_max = 27
+                if (count_pocket >= count_pocket_min or count_protein >= count_protein_min) and count_distant <= count_distant_max:
+                    print count_distant
+                    ## near pocket and semi buried in protein (not surface)
+                    if   count_pocket >= count_pocket_min and count_protein >  count_protein_min/2.:
+                        count_pocket = 13 ## green, include
+                    ## not vicinal to many pocket grid points, but very buried in protein
+                    elif count_protein >= count_protein_min:
+                        count_pocket = 27 ## blue, include
+                    ## not near other pocket points
+                    elif count_pocket <= count_pocket_min/2.:
+                        count_pocket = 24 ## light blue, exclude
+##                    ## surface of protein
+##                    elif count_protein <= count_protein_min/2.:
+##                        count_pocket = 6 ## orange, exclude
+                    else:
+                        count_pocket = 21 ## cyan
+                else:
+##                    print count_pocket+count_protein+count_distant, count_pocket, count_protein, count_distant
+                    count_pocket = 0 ## red, exclude
+
+##                count_pocket_min = 25
+##                count_protein_min = 70
+##                print count_protein, count_pocket
+##                if count_pocket >= count_pocket_min or count_protein >= count_protein_min:
+##                    ## not vicinal to many pocket grid points, but very buried in protein
+##                    if count_pocket < count_pocket_min and count_protein >= count_protein_min:
+##                        count_pocket = 27 ## blue, include
+##                    ## near pocket grid points, but surface of protein
+##                    elif count_pocket >= count_pocket_min and count_protein <= count_protein_min/2.:
+##                        count_pocket = 6 ## orange, exclude
+##                    ## near pocket and semi buried in protein (not surface)
+##                    elif count_pocket >= count_pocket_min and count_protein > count_protein_min/2.:
+##                        count_pocket = 13 ## green, include
+##                    else:
+##                        stopstop
+##                else:
+##                    count_pocket = 0 ## red, exclude
+                l_overlaps += [count_pocket/27.]
+
+            d_class_grid[x][y][z] = count_pocket
+
+##                if count > 0:
+##                    print x,y,z,d_class_grid[x][y][z]
+##                    stop
+##    print d_class_grid[-10][-1]
+##    stop
+
+    write_pdb(l_overlaps,l_coords_probe,pdb,chain,suffix='_test_%s_%s_%s' %(count_pocket_min,count_protein_min,count_distant_max,))
+    print l_coords_probe[0]
+    print l_coords_probe[-1]
+    print len(l_coords_probe)
+    print len(l_overlaps)
+
+    stop_done
+
+    return l_coords_probe
+
+
+def write_pdb(l_overlaps,l_coords_probe,pdb,chain,suffix='',):
+
+    fd = open('/data/pdb-v3.2/%s/pdb%s.ent' %(pdb[1:3],pdb,),'r')
+    lines_in = fd.readlines()
+    fd.close()
+
+    lines_out = []
+    l_modres = []
+
+    for line in lines_in:
+        record = line[:6].strip()
+        if record in ['HETATM','ATOM',]:
+            res_name = line[17:20].strip()
+            altloc = line[16]
+            chain_atom = line[21]
+            res_no = int(line[22:26])
+            iCode = line[26]
+            if res_name == 'HOH':
+                continue
+            if chain_atom != chain:
+                continue
+            if record == 'HETATM' and '%1s%4i%1s' %(chain_atom,res_no,iCode,) not in l_modres:
+                print line
+                continue
+            if altloc not in [' ','A','1',]:
+                print line
+                continue
+            atom_no = int(line[6:11])
+            bfactor = 100.
+            bfactor = 0.
+            line = '%60s%6.2f%s' %(line[:60],bfactor,line[66:],)
+
+        elif record == 'MODRES':
+            modres_chain = line[16]
+            res_no = int(line[18:22])
+            iCode = line[22]
+            if modres_chain != chain:
+                continue
+            l_modres += ['%1s%4i%1s' %(modres_chain,res_no,iCode,)]
+
+        lines_out += [line]
+
+    lines_out_probe = []
+    for i in range(len(l_overlaps)):
+        atom_no_probe = atom_no+i+1
+        res_no_probe = atom_no+i+1
+        bfactor = 100-100*float(l_overlaps[i])
+        coord = l_coords_probe[i]
+        x = coord[0]
+        y = coord[1]
+        z = coord[2]
+        lines_out_probe += [
+            'HETATM%5i   H  EXT O%4i    %8.3f%8.3f%8.3f  1.00%6.2f           H  \n' %(
+                atom_no_probe,res_no_probe,x,y,z,bfactor,
+                )
+            ]
+
+    lines_out += lines_out_probe
+
+    fd = open('%s_%s_probe%s.pdb' %(pdb,chain,suffix,),'w')
+    fd.writelines(lines_out)
+    fd.close()
+
+    return
+
+
+def calc_dotproduct(v1,v2,):
+
+    ## if numerator negative then angle > 90' !!! simplify!!!
+
+    if len(v1) != len(v2):
+        print len(v1), len(v2)
+        stop
+
+    numerator = 0
+    for i in range(len(v1)):
+        numerator += v1[i]*v2[i]
+    dotproduct = numerator
+
+##    denominator1 = 0
+##    denominator2 = 0
+##    for i in range(len(v1)):
+##        denominator1 += v1[i]*v1[i]
+##        denominator2 += v2[i]*v2[i]
+##    denominator = math.sqrt(denominator1*denominator2)
+##
+##    if denominator == 0: ## temp!!!
+##        cosang = 0.
+##        stop
+##    else:
+##        cosang = numerator / denominator
+
+    return dotproduct
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,18 @@
+Allele(s):
+IUPAC code
+Meaning
+A	A
+C	C
+G	G
+T	T
+M	A or C
+R	A or G
+W	A or T
+S	C or G
+Y	C or T
+K	G or T
+V	A or C or G (not T)
+H	A or C or T (not G)
+D	A or G or T (not C)
+B	C or G or T (not A)
+N	G or A or T or C

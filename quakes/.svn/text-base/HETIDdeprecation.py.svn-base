@@ -1,0 +1,47 @@
+import os
+
+pdbpath = '/oxygenase_local/data/pdb/'
+
+a = ['G31', 'DPU', 'A38', 'C34', 'U31', 'G36', 'PBT', 'BZU', 'T39', 'DTG', 'DTI', 'FUG', 'ILT', 'U34', 'C38', 'T38', 'G47', 'BAN', 'G49', 'C36', 'C31', 'CAE', 'TOE', 'TN4', 'CGA', 'T32', 'G48', 'C43', 'OAC', 'LNR', 'GC1', 'BPF', 'NGZ', 'GGC', 'BNR', 'UCL', 'LNC', '1SC', 'C45', 'C46', 'TPD', 'US1', 'C42', 'TA3', 'G38', 'CFL', 'C49', 'A47', 'A44', 'WRR', 'A43', 'A40', 'BDR', 'ADO', 'BI4', 'T49', 'T48', 'DBP', 'U36', 'T41', 'MG1', 'CBV', 'GFL', 'NTN', 'G6S', 'UFR', 'WRS']
+a.sort()
+print a
+stop
+
+l_hetids2 = []
+l_hetids1 = []
+
+subdirs = os.listdir(pdbpath)
+subdirs.sort()
+for subdir in subdirs:
+    print subdir
+    files = os.listdir(pdbpath+subdir)
+    for file in files:
+        fd = open('%s%s/%s' %(pdbpath,subdir,file),'r')
+        lines = fd.readlines()
+        fd.close()
+        for line in lines:
+            if line[:6].strip() == 'HET':
+                l_hetids2 += [line[7:10].strip()]
+
+pdbpath = '/data/pdb/'
+
+l_hetids1 = []
+
+files = os.listdir(pdbpath)
+for file in files:
+    print file
+    fd = open('%s%s' %(pdbpath,file),'r')
+    lines = fd.readlines()
+    fd.close()
+    for line in lines:
+        if line[:6].strip() == 'HET':
+            l_hetids1 += [line[7:10].strip()]
+
+set_hetids2 = set(l_hetids2)
+set_hetids1 = set(l_hetids1)
+
+print len(set_hetids2)
+print len(set_hetids1)
+
+print set_hetids1-set_hetids2
+print set_hetids2-set_hetids1

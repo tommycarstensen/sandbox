@@ -1,0 +1,13 @@
+set terminal postscript eps enhanced color "Helvetica" 30
+set output "3erq_LYS:A:0025.ps"
+set size 3,3
+set grid
+set mxtics 1
+set xtics 1
+set xlabel "pH"
+set ylabel "charge"
+set title 'Antonio Baptista   3ERQ LYS:A:0025 p=N/A pK_as=1 (9.0) SS N/A'
+set arrow from 9.035830, graph 0 to 9.035830, graph 1 nohead
+set arrow from 6.300000, graph 0 to 6.300000, graph 1 nohead lw 5 lc 0
+h(x) = 1+-1/(1+10**(9.03583-x))
+plot [-10:20][-1:1] "fit.tit" u 1:2 pt 7 ps 2 t "data points", h(x) lw 4 t "theoretical HH curve"
