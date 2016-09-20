@@ -29,7 +29,7 @@ class FA:
         response = requests.get(url)
         soup = bs4.BeautifulSoup(response.text)
 
-        table = soup.find('table', attrs={'id':'Rf'})
+        table = soup.find('table', attrs={'id': 'Rf'})
         if not table:
             return None
         table_body = table.find('tbody')
@@ -51,9 +51,8 @@ class FA:
 
         return d
 
-
     def find_candidates_FA(
-        self,d_portfolio, l_FAs, tickers,
+        self, d_portfolio, l_FAs, tickers,
         d_indexes,
         d_currency_name, d_currency_symbol,
         d_ADR,
@@ -61,8 +60,8 @@ class FA:
         PE_max, div_yield_min,
         payout_ratio_max, payout_ratio_cash_flow_free_max,
         PCF_max, NPM_min, ROE_min, ROA_min, DE_max, mc_min,
-        EVFCF_max,EVOCF_max,
-        r2_min_sales,r2_min_equity,
+        EVFCF_max, EVOCF_max,
+        r2_min_sales, r2_min_equity,
         ):
 
         FAcandidates = []
@@ -111,7 +110,7 @@ class FA:
                     'Other Long Term Assets, Total': None,
                     'Other Assets, Total': None,
             'Total Assets': None,
-            ## current liabilities
+            # current liabilities
                     'Accounts Payable': None,
                     'Payable/Acrued': None,
                     'Acrued Expenses': None,
@@ -197,7 +196,7 @@ class FA:
                 if ticker[:2] < sys.argv[-1]:
                     continue  # tmp!!!
 
-            print('\n%s/%s' %(j+1, len(tickers)), ticker)
+            print('\n', j+1, '\\', len(tickers), ticker)
 
             ticker_reuters = ticker_conversion.unknown2reuters(ticker)
 #            ticker_businessweek = ticker_conversion.unknown2businessweek(ticker)
@@ -328,7 +327,7 @@ class FA:
 ##                    continue
 ##                if '.SET' in ticker:
 ##                    continue
-                if not ':' in ticker_ft and any([
+                if ':' not in ticker_ft and any([
                     not '.' in ticker_ft,
                     ticker_ft.endswith('.A'),
                     ticker_ft.endswith('.B'),
@@ -354,7 +353,7 @@ class FA:
 ##                        url = url_ft = 'http://markets.ft.com/research/Markets/Tearsheets/Financials?s={}&subview=IncomeStatement'.format(ticker_ft)
 ##                        d_income_year[ticker], statement_error, currency_stmt = parse_ft.FT().parse_stmt(url_ft)
                 elif ticker.endswith('.VX'):
-                    for suffix_ft in (':SWX',':VTX', ':BRN'):
+                    for suffix_ft in (':SWX', ':VTX', ':BRN'):
                         url = url_ft = 'http://markets.ft.com/data/equities/tearsheet/financials?s={}&subview=IncomeStatement&periodType=a'.format(ticker[:-3]+suffix_ft)
                         print(suffix_ft, ticker_ft, ticker, url)
                         parse_ft.FT().parse_stmt(url_ft, ticker_ft)
@@ -408,7 +407,7 @@ class FA:
 ##                fd.close()
 ##                l_statement_pending += [ticker]
 ##                continue
-                
+
             if source == 'Yahoo':
                 url_yahoo = 'http://finance.yahoo.com/q/bs?s={}+Balance+Sheet&annual'.format(ticker_yahoo)
                 d_balance_year[ticker], statement_error, currency_stmt = parse_Yahoo.Yahoo().parseIncomeStatement(url_yahoo)
@@ -540,13 +539,13 @@ class FA:
 
                 d_income_year[ticker]['Net Income Before Extra. Items'] = []
                 for i in range(len(d_income_year[ticker]['Extraordinary Items'])):
-                    if not d_income_year[ticker]['Extraordinary Items'][i] in ('-', '--',):
+                    if d_income_year[ticker]['Extraordinary Items'][i] not in ('-', '--',):
                         d_income_year[ticker]['Net Income Before Extra. Items'].append(
                             d_income_year[ticker]['Net Income'][i]-d_income_year[ticker]['Extraordinary Items'][i])
                     else:
                         d_income_year[ticker]['Net Income Before Extra. Items'].append(d_income_year[ticker]['Net Income'][i])
 
-                if not '-' in d_balance_year[ticker]['Total Stockholder Equity']:
+                if '-' not in d_balance_year[ticker]['Total Stockholder Equity']:
                     d_balance_year[ticker]['Total Equity'] = d_balance_year[ticker]['Total Stockholder Equity']
                 else:
                     print(d_balance_year[ticker]['Total Assets'])
@@ -591,7 +590,7 @@ class FA:
             ## parse from FT instead... to avoid ticker conversion...
             ## http://markets.ft.com/research/Markets/Tearsheets/Summary?s=SYX:GER
             mc_overview = ''
-            for suffix in ('','.O','.N'):
+            for suffix in ('', '.O', '.N'):
                 url_reuters = url = 'http://www.reuters.com/finance/stocks/overview?symbol=%s' %(ticker_reuters+suffix)
                 try:
                     (
@@ -615,31 +614,31 @@ class FA:
                 continue
 
             if any([
-                sector in ['Bank','Insurance','Financials','financials',],
+                sector in ['Bank', 'Insurance', 'Financials', 'financials',],
                 'Cost of Revenue, Total' not in d_income_year[ticker].keys(),
                 ]):
                 if industry not in [
                     'Banks',
                     'REIT - Residential & Commercial',
                     'REITs - Residential',
-                    'REITs - Commercial', ## BDN
+                    'REITs - Commercial',  # BDN
                     'Real Estate Operations',
                     'Real Estate Development / Operations',
                     'Consumer Financial Services',
                     'Financial Services - Diversified',
                     'Financials - Specialty',
                     'Investment Trusts',
-                    'Investment Banking / Brokerage Services', ## BGCP
+                    'Investment Banking / Brokerage Services',  # BGCP
                     'Investment Services',
                     'Investment Services - Specialty',
-                    'Investment Management / Fund Operators', ## GLG
+                    'Investment Management / Fund Operators',  # GLG
                     'Reinsurance',
                     'Insurance - Life & Health',
-                    'Insurance - Life / Health', ## CRVL
+                    'Insurance - Life / Health',  # CRVL
                     'Insurance - Property & Casualty',
-                    'Insurance - Property / Casualty', ## RSA.L
+                    'Insurance - Property / Casualty',  # RSA.L
                     'Insurance - Multiline',
-                    'Commercial Services & Supplies', ## SFI, Industrials
+                    'Commercial Services & Supplies',  # SFI, Industrials
                     'Financial & Commodity Market Operators',  # FIS
                     'Corporate Financial Services',  # GMT
                     'Diversified Investment Services',  # ICE
@@ -672,9 +671,10 @@ class FA:
                     ]:
                     print(industry)
                     print(sector)
-                    if sector in ['Bank','Insurance','Financials','financials',]:
+                    if sector in [
+                        'Bank', 'Insurance', 'Financials', 'financials',]:
                         stop_tmp
-                fd = open('index_financials.txt','a')
+                fd = open('index_financials.txt', 'a')
                 fd.write('%s\n' %(ticker))
                 fd.close()
                 print('financial company', industry, ticker)
@@ -761,7 +761,7 @@ class FA:
                     fd.write('%s\n' %(ticker))
                     fd.close()
                 else:
-                    fd = open('FAissues.txt','a')
+                    fd = open('FAissues.txt', 'a')
                     fd.write('%s debt/equity %s\n' %(ticker,d_fundamentals['D/Eq']))
                     fd.close()
                 print('Debt/Eq.', d_fundamentals['D/Eq'])
@@ -789,7 +789,7 @@ class FA:
                     fd.write('%s\n' %(ticker))
                     fd.close()
                 else:
-                    fd = open('FAissues.txt','a')
+                    fd = open('FAissues.txt', 'a')
                     fd.write(s)
                     fd.close()
                     pass
@@ -966,7 +966,7 @@ class FA:
                     else:
                         print('zero shares, assets and/or liabilities. numbers not updated or recent listing.')
                     if ticker not in l_FAs:
-                        fd = open('statement_pending.txt','a')
+                        fd = open('statement_pending.txt', 'a')
                         fd.write('%s\n' %(ticker))
                         fd.close()
                     l_statement_pending += [ticker]
@@ -990,20 +990,20 @@ class FA:
                             pass
                         else:
                             if ticker in l_FAs: ## tmp!!!
-                                fd = open('FAissues.txt','a')
+                                fd = open('FAissues.txt', 'a')
                                 fd.write('%s equity %s operating income %s\n' %(
                                     ticker, str(l_equity),
                                     str(dic_10year['Operating Income'])))
                                 fd.close()
                             else:
-                                fd = open('statement_fundamentals.txt','a')
+                                fd = open('statement_fundamentals.txt', 'a')
                                 fd.write('%s\n' %(ticker))
                                 fd.close()
                             continue
                 elif min(l_sales) == 0:
                     print('stmt pending, sales', l_sales)
                     l_statement_pending += [ticker]
-                    fd = open('statement_pending.txt','a')
+                    fd = open('statement_pending.txt', 'a')
                     fd.write('%s\n' %(ticker))
                     fd.close()
                     print('2016-03-29d', ticker)
@@ -1071,7 +1071,7 @@ class FA:
                             fd.write('%s\n' %(ticker))
                             fd.close()
                         else:
-                            fd = open('FAissues.txt','a')
+                            fd = open('FAissues.txt', 'a')
                             fd.write('%s r**2 (10y) equity %s sales %s\n' %(
                                 ticker,round(r_equity_log**2,2),round(r_sales_log**2,2),))
                             fd.close()
@@ -1097,7 +1097,7 @@ class FA:
                             fd.write('%s\n' %(ticker))
                             fd.close()
                         else:
-                            fd = open('FAissues.txt','a')
+                            fd = open('FAissues.txt', 'a')
                             fd.write('%s r5 %s %s\n' %(ticker,r5_equity,r5_sales,))
                             fd.close()
                         if ticker not in d_portfolio.keys():
@@ -1112,7 +1112,7 @@ class FA:
                     if a10_sales < 5 or a5_sales < 3.5:
                         print('sales slope less than 5% (10y) or less than 3.5% (5y)', a10_sales, a5_sales, l_sales)
                         if ticker in l_FAs:
-                            fd = open('FAissues.txt','a')
+                            fd = open('FAissues.txt', 'a')
                             fd.write(
                                 '%s 10ysales %.1f 5ysales %.1f\n' %(
                                     ticker,a10_sales,a5_sales,))
@@ -1134,7 +1134,7 @@ class FA:
 ##                l_statement_missing += [ticker]
 ##                continue
 
-            if not 'RETURN ON EQUITY (%)' in dic_10year.keys():
+            if 'RETURN ON EQUITY (%)' not in dic_10year.keys():
 
                 if ticker in l_FAs:
                     l_statement_missing += [ticker]
@@ -1145,7 +1145,7 @@ class FA:
             else:
 
 ##                for k in ['Return on Equity (%)','Net Profit Margin (%)',]:
-                for k in ['RETURN ON EQUITY (%)','NET PROFIT MARGIN (%)',]:
+                for k in ['RETURN ON EQUITY (%)', 'NET PROFIT MARGIN (%)',]:
                     l = list(reversed(dic_10year[k]))  # oldest at top
                     l = dic_10year[k]  # new to old (morningstar)
 
@@ -1153,7 +1153,7 @@ class FA:
 
                     if len(l) < 10:
                         if ticker not in l_FAs:
-                            fd = open('statement_pending.txt','a')
+                            fd = open('statement_pending.txt', 'a')
                             fd.write('%s\n' %(ticker))
                             fd.close()
                         l_statement_pending += [ticker]
@@ -1180,7 +1180,7 @@ class FA:
 ##                    if a5 < -b5/20. or a10 < -b10/20.:
                     if (a5 < -b5/20. and a10 < 0) or (a10 < -b10/30. and a5 < 0):
                         print(k, l, 'slope', '5y', a5, '10y', a10)
-                        if not ticker in l_FAs:
+                        if ticker not in l_FAs:
                             bool_decrease = True
                             break
 
@@ -1210,7 +1210,7 @@ class FA:
                     print('check if this company is still reporting')
                     continue
             else:
-                if not 'date' in d_cash_year[ticker].keys():
+                if 'date' not in d_cash_year[ticker].keys():
                     print(d_cash_year[ticker])
                     if source == 'ADVFN':
                         ## not entirely correct...
@@ -1230,7 +1230,7 @@ class FA:
                     ## this check only applicable if not parsed from advfn
                     if d_income_year[ticker]['date'] != d_balance_year[ticker]['date']:
                         if ticker not in l_FAs:
-                            fd = open('statement_pending.txt','a')
+                            fd = open('statement_pending.txt', 'a')
                             fd.write('%s\n' %(ticker))
                             fd.close()
                         l_statement_pending += [ticker]
@@ -1238,7 +1238,7 @@ class FA:
                         continue
                     if d_cash_year[ticker]['date'][:4] != d_income_year[ticker]['date'][:4]:
                         if ticker not in l_FAs:
-                            fd = open('statement_pending.txt','a')
+                            fd = open('statement_pending.txt', 'a')
                             fd.write('%s\n' %(ticker))
                             fd.close()
                         l_statement_pending += [ticker]
@@ -1263,7 +1263,7 @@ class FA:
                         fd.write('%s\n' %(ticker))
                         fd.close()
                     else:
-                        fd = open('FAissues.txt','a')
+                        fd = open('FAissues.txt', 'a')
                         fd.write('%s payot (%s) > payout max\n' %(ticker,payout_ratio))
                         fd.close()
                     print('payout (%.2f) > payout max (%s)' %(payout_ratio, payout_ratio_max,))
@@ -1273,11 +1273,11 @@ class FA:
             ## zero or negative free/operating cash flow
             if d_fundamentals['OCF'] <= 0:
                 if ticker not in l_FAs:
-                    fd = open('statement_fundamentals.txt','a')
+                    fd = open('statement_fundamentals.txt', 'a')
                     fd.write('%s\n' %(ticker))
                     fd.close()
                 else:
-                    fd = open('FAissues.txt','a')
+                    fd = open('FAissues.txt', 'a')
                     fd.write('%s negative fcf\n' %(ticker))
                     fd.close()
                 print('zero or negatgive ocf')
@@ -1285,9 +1285,9 @@ class FA:
                     continue
 
             x1 = d_cash_year[ticker]['Cash from Operating Activities'][-1]
-            x2 = abs(d_cash_year[ticker]['Capital Expenditures'][-1]
+            x2 = abs(d_cash_year[ticker]['Capital Expenditures'][-1])
             if x1 < x2:
-                fd = open('statement_fundamentals.txt','a')
+                fd = open('statement_fundamentals.txt', 'a')
                 fd.write('%s\n' %(ticker))
                 fd.close()
                 print('operating cash flow doesnt cover CapEx')
@@ -1418,7 +1418,7 @@ class FA:
                         print('div yield < minimum div yield', d_multiples['div_yield'], '<', div_yield_min)
                         continue
                     else:
-                        fd = open('FAissues.txt','a')
+                        fd = open('FAissues.txt', 'a')
                         fd.write('%s %s div yield\n' %(ticker,d_multiples['div_yield']))
                         fd.close()
 
@@ -1436,11 +1436,11 @@ class FA:
                         100*compensation/abs(d_cash_year[ticker]['Total Cash Dividends Paid'][col1cy]),
                         ))
                     if ticker not in l_FAs:
-                        fd = open('statement_fundamentals.txt','a')
+                        fd = open('statement_fundamentals.txt', 'a')
                         fd.write('%s\n' %(ticker))
                         fd.close()
                     else:
-                        fd = open('FAissues.txt','a')
+                        fd = open('FAissues.txt', 'a')
                         fd.write('%s executive compensation %s\n' %(
                             ticker,
                             100*compensation/abs(d_cash_year[ticker]['Total Cash Dividends Paid'][col1cy]),
@@ -1501,37 +1501,41 @@ class FA:
             FAcandidates.append(ticker)
 
 ##            d_msn = parse_MSN.MSN().parse_company_report(ticker,rate,)
-            d_msn = {'ma50':'N/A','ma200':'N/A','relative strength':'N/A',}
+            d_msn = {
+                'ma50': 'N/A', 'ma200': 'N/A', 'relative strength': 'N/A',}
 
             if compensation != 'N/A':
                 compensation = round(compensation/1000000.,1)
 
             d_FAdata[ticker] = {
-                'Market Cap (Mil)':mc_USD,'name':name,
-                'P/E':d_multiples['P/E'],
-                'Div. Yield':d_multiples['div_yield']*100,
-                'NPM':d_fundamentals['NPM']*100,
-                'ROA':d_fundamentals['ROA']*100,
-                'ROE':d_fundamentals['ROE']*100,
-                'E/NTA':d_fundamentals['E/NTA']*100,
-##                'ROIC':d_fundamentals['ROIC']*100,
-                'grow5y_sales':0,'grow5y_income':0,
-                'MA200':d_msn['ma200'],'MA50':d_msn['ma50'],
-                'price':price,
-                'Payout Ratio':payout_ratio*100,
-                'P/CF':d_multiples['P/CF'],'EV/FCF':d_multiples['EV/FCF'],'EV/OCF':d_multiples['EV/OCF'],
-                'ATO':d_fundamentals['ATO'],'Equity Multiplier':d_fundamentals['equity_multiplier'],
-                'compensation':compensation,
-                'sector':sector,'industry':industry,
-                'r_sales_log**2':round(r_sales_log**2,2),
-                'min_year':max(d_cash_year[ticker]['date']),
-                'ticker_reuters':ticker_reuters,
-                'relative strength':d_msn['relative strength'],
+                'Market Cap (Mil)': mc_USD, 'name': name,
+                'P/E': d_multiples['P/E'],
+                'Div. Yield': d_multiples['div_yield']*100,
+                'NPM': d_fundamentals['NPM']*100,
+                'ROA': d_fundamentals['ROA']*100,
+                'ROE': d_fundamentals['ROE']*100,
+                'E/NTA': d_fundamentals['E/NTA']*100,
+##                'ROIC': d_fundamentals['ROIC']*100,
+                'grow5y_sales': 0, 'grow5y_income': 0,
+                'MA200': d_msn['ma200'], 'MA50': d_msn['ma50'],
+                'price': price,
+                'Payout Ratio': payout_ratio*100,
+                'P/CF': d_multiples['P/CF'],
+                'EV/FCF': d_multiples['EV/FCF'],
+                'EV/OCF': d_multiples['EV/OCF'],
+                'ATO': d_fundamentals['ATO'],
+                'Equity Multiplier': d_fundamentals['equity_multiplier'],
+                'compensation': compensation,
+                'sector': sector, 'industry': industry,
+                'r_sales_log**2': round(r_sales_log**2,2),
+                'min_year': max(d_cash_year[ticker]['date']),
+                'ticker_reuters': ticker_reuters,
+                'relative strength': d_msn['relative strength'],
                 }
 
             for key in [
 ##                'GPM',
-                'NPM','ROE','ROA','ATO',
+                'NPM', 'ROE', 'ROA', 'ATO',
                 ]:
                 d_FAdata[ticker][key] = d_fundamentals[key]*100
 
@@ -1591,11 +1595,11 @@ class FA:
     def stmtERROR(self, ticker, l_FAs=[], url='', suffix='error'):
 
         if ticker not in l_FAs:
-            fd = open('statement_{}.txt'.format(suffix),'a')
+            fd = open('statement_{}.txt'.format(suffix), 'a')
             fd.write('%s\n' %(ticker))
             fd.close()
         else:
-            fd = open('FAissues.txt','a')
+            fd = open('FAissues.txt', 'a')
             fd.write('%s %s\n' %(ticker, url,))
             fd.close()
 
@@ -1637,7 +1641,7 @@ class FA:
 
         bool_dividend_not_decreasing = True
 
-        if ticker in ['ECL','FDO',] or len(lines_dividend) == 1:
+        if len(lines_dividend) == 1:
             return bool_dividend_not_decreasing
 
         d_dividends = {}
@@ -1767,23 +1771,23 @@ class FA:
         ## check that not negative (or zero)
         d_keys = {
             'income':{
-                'dic':d_income_year,
-                'keys':[
+                'dic': d_income_year,
+                'keys': [
                     'Total Revenue',
                     'Operating Income',
                     'Net Income Before Extra. Items',
                     ],
                 },
-            'balance':{
-                'dic':d_balance_year,
-                'keys':[
+            'balance': {
+                'dic': d_balance_year,
+                'keys': [
                     'Total Equity',
                     'Total Assets',
                     ],
                 },
-            'cashflow':{
-                'dic':d_cash_year,
-                'keys':[
+            'cashflow': {
+                'dic': d_cash_year,
+                'keys': [
                     'Cash from Operating Activities',
                     ],
                 }
@@ -1810,18 +1814,18 @@ class FA:
         ## check that present
         d_keys = {
             'income':{
-                'dic':d_income_year,
-                'keys':[
+                'dic': d_income_year,
+                'keys': [
                     ],
                 },
-            'balance':{
-                'dic':d_balance_year,
-                'keys':[
+            'balance': {
+                'dic': d_balance_year,
+                'keys': [
                     ],
                 },
-            'cashflow':{
-                'dic':d_cash_year,
-                'keys':[
+            'cashflow': {
+                'dic': d_cash_year,
+                'keys': [
 ##                    'Total Cash Dividends Paid',
                     ],
                 }
@@ -1858,7 +1862,8 @@ class FA:
         index0, index1,
         ):
 
-        d_ratios = {'market':{},'debt':{},'profitability':{},'market':{},}
+        d_ratios = {
+            'market': {}, 'debt': {}, 'profitability': {}, 'market': {},}
 
         d_fundamentals = {}
         d_multiples = {}
@@ -1867,16 +1872,13 @@ class FA:
         ## income statement
         ##
 
-        gross_profit = (
-            d_income_year[ticker]['Total Revenue'][index0]
-            -
-            d_income_year[ticker]['Cost of Revenue, Total'][index0]
+        minuend = d_income_year[ticker]['Total Revenue'][index0]
+        subtrahend = d_income_year[ticker]['Cost of Revenue, Total'][index0]
+        gross_profit = minuend - subtrahend
             )
         
         gpm_curr = (
-            gross_profit
-            /
-            d_income_year[ticker]['Total Revenue'][index0]
+            gross_profit / d_income_year[ticker]['Total Revenue'][index0]
             )
         opm_curr = (
             d_income_year[ticker]['Operating Income'][index0]
