@@ -137,6 +137,7 @@ class FA:
             'Total Common Shares Outstanding': None,
             'Total Preferred Shares Outstanding': None,
             }
+
         d_cash_in = {
             'Net Income/Starting Line': None,
             'Depreciation/Depletion': None,
@@ -146,6 +147,7 @@ class FA:
             'Total Cash Dividends Paid': None,
             'Cash from Operating Activities': None,
             }
+
         d_businessweek2reuters = {
             # income statement
             'TOTAL REVENUES': 'Total Revenue',
@@ -185,7 +187,7 @@ class FA:
             FA = True
 
             ticker = tickers[j]
-            if ticker in skip+l_statement_pending+l_statement_missing:
+            if ticker in skip + l_statement_pending + l_statement_missing:
                 continue
             if ticker == '\n':
                 continue
@@ -196,7 +198,7 @@ class FA:
                 if ticker[:2] < sys.argv[-1]:
                     continue  # tmp!!!
 
-            print('\n', j+1, '\\', len(tickers), ticker)
+            print('\n', j + 1, '\\', len(tickers), ticker)
 
             ticker_reuters = ticker_conversion.unknown2reuters(ticker)
 #            ticker_businessweek = ticker_conversion.unknown2businessweek(ticker)
@@ -267,7 +269,7 @@ class FA:
 ##            url = 'http://www.reuters.com/finance/stocks/incomeStatement?stmtType=INC&perType=ANN&symbol=%s' %(ticker_reuters)
 ##            (
 ##                d_income_year[ticker], statement_error, currency_stmt,
-##                ) = parse_Reuters.Reuters().parse_statement(url, d_income_in, 'income',)
+##                ) = parse_Reuters.Reuters().parse_statement(url, d_income_in, 'income')
 
 ##            ## BusinessWeek was acquired by Bloomberg in 2010
 ##            url = 'http://investing.businessweek.com/businessweek/research/stocks/financials/financials.asp?ticker=%s&dataset=incomeStatement&period=A&currency=native' %(ticker_businessweek)
@@ -275,7 +277,7 @@ class FA:
 ##            (
 ##                d_income_year[ticker], statement_error, statement_pending,
 ##                currency_stmt,
-##                ) = parse_BusinessWeek.BusinessWeek().parse_statement(url,)
+##                ) = parse_BusinessWeek.BusinessWeek().parse_statement(url)
 
             if source == 'Yahoo':
                 ## Yahoo only does 3 years. But easy to parse and most markets. Do Morningstar or ADVFN for 10y.
@@ -299,7 +301,6 @@ class FA:
 
             if source == 'ADVFN':
                 # ADVFN does annual data back to 1993, but only for US markets etc.
-    ##            url_advfn = http://uk.advfn.com/p.php?pid=financials&btn=start_date&mode=annual_reports&symbol=NYSE%3AIBM&start_date=18
                 if 'LSE:' not in ticker_advfn and ':' not in ticker_advfn:
                     urls = (  # : is %3A
                         'http://www.advfn.com/p.php?pid=financials&btn=start_date&mode=annual_reports&symbol=NYSE:{}'.format(ticker_advfn),
@@ -320,14 +321,8 @@ class FA:
                         break
 
             if source == 'FT':
-##                if '.KS' in ticker:
-##                    continue
-##                if '.TLV' in ticker:
-##                    continue
-##                if '.SET' in ticker:
-##                    continue
                 if ':' not in ticker_ft and any([
-                    not '.' in ticker_ft,
+                    '.' not in ticker_ft,
                     ticker_ft.endswith('.A'),
                     ticker_ft.endswith('.B'),
                     ]):
@@ -338,8 +333,8 @@ class FA:
                         ':NMQ',  # Nasdaq Global Market n=732
                         ':ASQ',  # NYSE MKT LLC
                         ):
-                        url = url_ft = 'http://markets.ft.com/research/Markets/Tearsheets/Financials?s={}&subview=IncomeStatement'.format(ticker_ft+suffix_ft)
-                        url = url_ft = 'http://markets.ft.com/data/equities/tearsheet/financials?s={}&subview=IncomeStatement&periodType=a'.format(ticker_ft+suffix_ft)
+                        url = url_ft = 'http://markets.ft.com/research/Markets/Tearsheets/Financials?s={}&subview=IncomeStatement'.format(ticker_ft + suffix_ft)
+                        url = url_ft = 'http://markets.ft.com/data/equities/tearsheet/financials?s={}&subview=IncomeStatement&periodType=a'.format(ticker_ft + suffix_ft)
                         parse_ft.FT().parse_stmt(url_ft, ticker_ft)
                         try:
                             d_income_year[ticker], statement_error, currency_stmt = parse_ft.FT().parse_stmt(url_ft, ticker_ft)
@@ -386,7 +381,7 @@ class FA:
 ##            url_morningstar = 'http://financials.morningstar.com/income-statement/is.html?t={}'.format(ticket_morningstar)
 
 ##            ## key conversion
-##            for key in list(d_income_year[ticker].keys()):
+##            for key in d_income_year[ticker].keys():
 ##                d_income_year[ticker][key].reverse()
 ##                if key in list(d_businessweek2reuters.keys()):
 ##                    d_income_year[ticker][d_businessweek2reuters[key]] = d_income_year[ticker][key]
@@ -446,51 +441,25 @@ class FA:
                 d_cash_year[ticker]['Cash from Operating Activities'] = d_cash_year[ticker]['Total cash from operations']
                 d_cash_year[ticker]['Capital Expenditures'] = d_cash_year[ticker]['Capital expenditures']
 
-####            ##
-####            ## parse balance sheet, annual
-####            ## 
-##            url = 'http://www.reuters.com/finance/stocks/incomeStatement?stmtType=BAL&perType=ANN&symbol=%s' %(ticker_reuters)
-##            d_balance_year[ticker],statement_error,currency_stmt = parse_Reuters.Reuters().parse_statement(url, d_balance_in, 'balance',)
-####            url = 'http://investing.businessweek.com/businessweek/research/stocks/financials/financials.asp?ticker=%s&dataset=balanceSheet&period=A&currency=native' %(ticker_businessweek)
-####            d_balance_year[ticker],statement_error,statement_pending,currency_stmt = parse_BusinessWeek.BusinessWeek().parse_statement(url,)
-####            for key in list(d_balance_year[ticker].keys()):
-####                d_balance_year[ticker][key].reverse()
-####                if key in list(d_businessweek2reuters.keys()):
-####                    d_balance_year[ticker][d_businessweek2reuters[key]] = d_balance_year[ticker][key]
-####                    del d_balance_year[ticker][key]
-####
-####            ##
-####            ## parse cash flow, annual
-####            ## 
-##            url = 'http://www.reuters.com/finance/stocks/incomeStatement?stmtType=CAS&perType=ANN&symbol=%s' %(ticker_reuters)
-##            d_cash_year[ticker],statement_error,currency_stmt = parse_Reuters.Reuters().parse_statement(url, d_cash_in, 'cashflow',)
-####            url = 'http://investing.businessweek.com/businessweek/research/stocks/financials/financials.asp?ticker=%s&dataset=cashFlow&period=A&currency=native' %(ticker_businessweek)
-####            d_cash_year[ticker],statement_error,statement_pending,currency_stmt = parse_BusinessWeek.BusinessWeek().parse_statement(url,)
-####            for key in list(d_cash_year[ticker].keys()):
-####                d_cash_year[ticker][key].reverse()
-####                if key in list(d_businessweek2reuters.keys()):
-####                    d_cash_year[ticker][d_businessweek2reuters[key]] = d_cash_year[ticker][key]
-####                    del d_cash_year[ticker][key]
-
-            if 'total equity' in list(d_balance_year[ticker].keys()):
+            if 'total equity' in d_balance_year[ticker].keys():
                 d_balance_year[ticker]['Total Equity'] = d_balance_year[ticker]['total equity']
-            if 'total assets' in list(d_balance_year[ticker].keys()):
+            if 'total assets' in d_balance_year[ticker].keys():
                 d_balance_year[ticker]['Total Assets'] = d_balance_year[ticker]['total assets']
 
-            if 'cash from operations' in list(d_cash_year[ticker].keys()):
+            if 'cash from operations' in d_cash_year[ticker].keys():
                 d_cash_year[ticker]['Cash from Operating Activities'] = d_cash_year[ticker]['cash from operations']
-            if 'Net Cash From Total Operating Activities'.lower() in list(d_cash_year[ticker].keys()):
+            if 'Net Cash From Total Operating Activities'.lower() in d_cash_year[ticker].keys():
                 d_cash_year[ticker]['Cash from Operating Activities'] = d_cash_year[ticker]['Net Cash From Total Operating Activities'.lower()]
-            if 'total dividend paid' in list(d_cash_year[ticker].keys()):
+            if 'total dividend paid' in d_cash_year[ticker].keys():
                 d_cash_year[ticker]['Total Cash Dividends Paid'] = d_cash_year[ticker]['total dividend paid']
-            if 'cash dividends paid' in list(d_cash_year[ticker].keys()):
+            if 'cash dividends paid' in d_cash_year[ticker].keys():
                 d_cash_year[ticker]['Total Cash Dividends Paid'] = d_cash_year[ticker]['cash dividends paid']
-            if 'Payment Of Cash Dividends'.lower() in list(d_cash_year[ticker].keys()):
+            if 'Payment Of Cash Dividends'.lower() in d_cash_year[ticker].keys():
                 d_cash_year[ticker]['Total Cash Dividends Paid'] = d_cash_year[ticker]['Payment Of Cash Dividends'.lower()]
-            if 'capital expenditure' in list(d_cash_year[ticker].keys()):
+            if 'capital expenditure' in d_cash_year[ticker].keys():
                 d_cash_year[ticker]['Capital Expenditures'] = d_cash_year[ticker]['capital expenditure']
 
-            if 'total revenues' in list(d_income_year[ticker].keys()):
+            if 'total revenues' in d_income_year[ticker].keys():
                 d_income_year[ticker]['Total Revenue'] = d_income_year[ticker]['total revenues']
             if 'total revenue' in list(d_income_year[ticker].keys()):
                 d_income_year[ticker]['Total Revenue'] = d_income_year[ticker]['total revenue']
@@ -590,15 +559,15 @@ class FA:
             ## http://markets.ft.com/research/Markets/Tearsheets/Summary?s=SYX:GER
             mc_overview = ''
             for suffix in ('', '.O', '.N'):
-                url_reuters = url = 'http://www.reuters.com/finance/stocks/overview?symbol=%s' %(ticker_reuters+suffix)
+                url_reuters = url = 'http://www.reuters.com/finance/stocks/overview?symbol={}'.format(ticker_reuters + suffix)
                 try:
                     (
                         name,
                         currency_overview_symbol, price,
-                        sector, industry,  statementNA,
+                        sector, industry, statementNA,
                         mc_overview, beta,
                         ) = parse_Reuters.Reuters().parse_overview(
-                            ticker_reuters+suffix, url,
+                            ticker_reuters + suffix, url,
                             )
                     if mc_overview != '':
                         break
@@ -663,7 +632,7 @@ class FA:
                         'Bank', 'Insurance', 'Financials', 'financials']:
                         stop_tmp
                 fd = open('index_financials.txt', 'a')
-                fd.write('%s\n' %(ticker))
+                fd.write('{}\n'.format(ticker))
                 fd.close()
                 print('financial company', industry, ticker)
                 continue
@@ -700,8 +669,8 @@ class FA:
                 rate_overview = rate_stmt
 
             print(type(mc_overview), mc_overview, rate_overview)
-            mc_USD = mc_overview/rate_overview ## e.g. AZN (SEK or GBP) > AZN (USD)
-            mc_stmt = mc_USD * rate_stmt ## e.g. AZN (USD) > AZN.L (GBP)
+            mc_USD = mc_overview / rate_overview  # e.g. AZN (SEK or GBP) > AZN (USD)
+            mc_stmt = mc_USD * rate_stmt  # e.g. AZN (USD) > AZN.L (GBP)
 
 ##            if round(mc_overview,0) != round(mc_stmt,0):
 ##                print ticker
@@ -746,11 +715,11 @@ class FA:
             if d_fundamentals['D/Eq'] > DE_max:
                 if ticker not in l_FAs:
                     fd = open('statement_fundamentals.txt', 'a')
-                    fd.write('%s\n' %(ticker))
+                    fd.write('{}\n'.format(ticker))
                     fd.close()
                 else:
                     fd = open('FAissues.txt', 'a')
-                    fd.write('%s debt/equity %s\n' %(
+                    fd.write('{} debt/equity {}\n'.format(
                         ticker, d_fundamentals['D/Eq']))
                     fd.close()
                 print('Debt/Eq.', d_fundamentals['D/Eq'])
@@ -819,19 +788,6 @@ class FA:
                     print(ticker, ticker_morningstar)
                     print(url_morningstar)
                 continue
-
-####            url_gurufocus = 'http://www.gurufocus.com/financials/{}'.format(ticker)
-####            d_gf = self.parse_gurufocus(url_gurufocus)
-####            if not d_gf: continue # tmp!
-##
-##            l_equity_log = [math.log(x) for x in d_gf['Total Equity']]
-##            l_sales_log = [math.log(x) for x in d_gf['Revenue']]
-##            r_equity_log = statistics.correlation(list(range(len(l_equity_log),1-1,-1)),l_equity_log)
-##            r_sales_log = statistics.correlation(list(range(len(l_sales_log),1-1,-1)),l_sales_log)
-##            
-##            print(r_equity_log)
-##            print(r_sales_log)
-##            stop
 
             bool_continue = False
             for k in ('Book Value Per Share', 'Earnings Per Share',):
@@ -975,7 +931,7 @@ class FA:
                         if ticker in d_portfolio.keys():
                             pass
                         else:
-                            if ticker in l_FAs: ## tmp!!!
+                            if ticker in l_FAs:  # tmp!!!
                                 fd = open('FAissues.txt', 'a')
                                 fd.write('%s equity %s operating income %s\n' %(
                                     ticker, str(l_equity),
@@ -1003,16 +959,25 @@ class FA:
                         continue
 
                     try:
-                        l_income_log = [math.log(l_NetIncome[year]) for year in range(len(l_NetIncome))]
-                        l_eps_log = [math.log(l_EPS[year]) for year in range(len(l_EPS))]
-                        r_income_log = statistics.correlation(list(range(len(l_income_log),1-1,-1)),l_income_log)
-                        r_eps_log = statistics.correlation(list(range(len(l_eps_log),1-1,-1)),l_eps_log)
+                        l_income_log = [
+                            math.log(l_NetIncome[year]) for year in range(
+                                len(l_NetIncome))]
+                        l_eps_log = [math.log(l_EPS[year]) for year in range(
+                            len(l_EPS))]
+                        r_income_log = statistics.correlation(
+                            list(range(len(l_income_log), 1-1, -1)),
+                            l_income_log)
+                        r_eps_log = statistics.correlation(
+                            list(range(len(l_eps_log), 1-1, -1)), l_eps_log)
                     except ValueError:
                         r_income_log = 1
                         r_eps_log = 1
 
-                    r_equity_log = statistics.correlation(list(range(len(l_equity_log),1-1,-1)),l_equity_log)
-                    r_sales_log = statistics.correlation(list(range(len(l_sales_log),1-1,-1)),l_sales_log)
+                    r_equity_log = statistics.correlation(
+                        list(range(len(l_equity_log), 1-1, -1)),
+                        l_equity_log)
+                    r_sales_log = statistics.correlation(
+                        list(range(len(l_sales_log), 1-1, -1)), l_sales_log)
 
 ##                    l_equity_sorted = [x for x in l_equity if x != '-']
 ##                    l_equity_sorted.sort()
@@ -1059,7 +1024,8 @@ class FA:
                         else:
                             fd = open('FAissues.txt', 'a')
                             fd.write('%s r**2 (10y) equity %s sales %s\n' %(
-                                ticker,round(r_equity_log**2,2),round(r_sales_log**2,2),))
+                                ticker, round(r_equity_log**2, 2),
+                                round(r_sales_log**2, 2)))
                             fd.close()
                         if ticker not in d_portfolio.keys():
                             print('r_equity_log**2', r_equity_log**2)
@@ -1071,9 +1037,12 @@ class FA:
                     ##
                     ## 5 year correlations
                     ##
-                    r5_equity = statistics.correlation(list(range(5,1-1,-1)),l_equity_log[:5])
-                    r5_sales = statistics.correlation(list(range(5,1-1,-1)),l_sales_log[:5])
-                    r5_eps = statistics.correlation(list(range(5,1-1,-1)),l_eps_log[:5])
+                    r5_equity = statistics.correlation(
+                        list(range(5, 1-1, -1)), l_equity_log[:5])
+                    r5_sales = statistics.correlation(
+                        list(range(5, 1-1, -1)), l_sales_log[:5])
+                    r5_eps = statistics.correlation(
+                        list(range(5, 1-1, -1)), l_eps_log[:5])
 ##                    if r5_equity < .5 or r5_sales < .5:
 ##                    if r5_sales < .5:
                     if r5_equity < .5 and r5_sales < .5 and r5_eps < .5:
@@ -1084,31 +1053,34 @@ class FA:
                             fd.close()
                         else:
                             fd = open('FAissues.txt', 'a')
-                            fd.write('%s r5 %s %s\n' %(ticker,r5_equity,r5_sales,))
+                            fd.write('%s r5 %s %s\n' %(
+                                ticker, r5_equity, r5_sales,))
                             fd.close()
                         if ticker not in d_portfolio.keys():
                             print('r5', r5_equity, r5_sales)
                             continue
 
-                    a10_sales,b10_sales,RR10_sales = self.linreg(list(range(max(9,len(l_sales_log)),0,-1)), l_sales_log[:10],)
-                    a5_sales,b5_sales,RR5_sales = self.linreg(list(range(5,0,-1)), l_sales_log[:5],)
+                    a10_sales, b10_sales, RR10_sales = self.linreg(
+                        list(range(max(9, len(l_sales_log)),0,-1)), l_sales_log[:10],)
+                    a5_sales, b5_sales, RR5_sales = self.linreg(
+                        list(range(5,0,-1)), l_sales_log[:5])
                     ## convert a in b*e^(a*x) to annual percentage
-                    a10_sales = round(100*math.exp(a10_sales),1)-100
-                    a5_sales = round(100*math.exp(a5_sales),1)-100
+                    a10_sales = round(100*math.exp(a10_sales), 1) - 100
+                    a5_sales = round(100*math.exp(a5_sales), 1) - 100
                     if a10_sales < 5 or a5_sales < 3.5:
                         print('sales slope less than 5% (10y) or less than 3.5% (5y)', a10_sales, a5_sales, l_sales)
                         if ticker in l_FAs:
                             fd = open('FAissues.txt', 'a')
                             fd.write(
                                 '%s 10ysales %.1f 5ysales %.1f\n' %(
-                                    ticker,a10_sales,a5_sales,))
+                                    ticker,a10_sales,a5_sales))
                             fd.close()
                         else:
                             fd = open('statement_fundamentals.txt', 'a')
                             fd.write('%s\n' %(ticker))
                             fd.close()
                             continue
-                        
+
             else:
                 print('MSN 10y statement missing', len(dic_10year['SHARES OUTSTANDING']))
                 r_equity_log = 0
@@ -1159,8 +1131,8 @@ class FA:
                         break
 
                     ## decreasing on average more than a treshold over a 5 and 10 year period?
-                    a10,b10,RR10 = self.linreg(list(range(10,0,-1)), l[:10],)
-                    a5,b5,RR5 = self.linreg(list(range(5,0,-1)), l[:5],)
+                    a10, b10, RR10 = self.linreg(list(range(10,0,-1)), l[:10],)
+                    a5, b5, RR5 = self.linreg(list(range(5,0,-1)), l[:5],)
                     ## you don't want a big recent drop
                     ## you don't want a big steady drop over many years
 ##                    if a5 < -b5/20. or a10 < -b10/20.:
@@ -1279,7 +1251,7 @@ class FA:
                 print('operating cash flow doesnt cover CapEx')
                 continue
 
-            if div_yield_min > 0 and not 'Total Cash Dividends Paid' in d_cash_year[ticker].keys():
+            if div_yield_min > 0 and 'Total Cash Dividends Paid' not in d_cash_year[ticker].keys():
                 fd = open('statement_fundamentals.txt', 'a')
                 fd.write('%s\n' %(ticker))
                 fd.close()
@@ -1318,9 +1290,9 @@ class FA:
             ##
             FA = True
             d_fundamentals_limits = {
-                'ROA':[d_fundamentals['ROA'],ROA_min],
-                'ROE':[d_fundamentals['ROE'],ROE_min],
-                'NPM':[d_fundamentals['NPM'],NPM_min],
+                'ROA':[d_fundamentals['ROA'], ROA_min],
+                'ROE':[d_fundamentals['ROE'], ROE_min],
+                'NPM':[d_fundamentals['NPM'], NPM_min],
                 }
             for key in d_fundamentals_limits.keys():
                 if d_fundamentals_limits[key][index0] == 'N/A':
@@ -1426,7 +1398,7 @@ class FA:
                         ))
                     if ticker not in l_FAs:
                         fd = open('statement_fundamentals.txt', 'a')
-                        fd.write('%s\n' %(ticker))
+                        fd.write('{}\n'.format(ticker))
                         fd.close()
                     else:
                         fd = open('FAissues.txt', 'a')
@@ -1481,7 +1453,6 @@ class FA:
 
 ################################################################################
 
-
             print('*****FA CANDIDATE*****')
             if ticker not in l_FAs:
                 fd = open('FAcandidates.txt', 'a')
@@ -1491,10 +1462,10 @@ class FA:
 
 ##            d_msn = parse_MSN.MSN().parse_company_report(ticker,rate,)
             d_msn = {
-                'ma50': 'N/A', 'ma200': 'N/A', 'relative strength': 'N/A',}
+                'ma50': 'N/A', 'ma200': 'N/A', 'relative strength': 'N/A'}
 
             if compensation != 'N/A':
-                compensation = round(compensation/1000000.,1)
+                compensation = round(compensation/1000000., 1)
 
             d_FAdata[ticker] = {
                 'Market Cap (Mil)': mc_USD, 'name': name,
@@ -1527,7 +1498,7 @@ class FA:
             d_FAdata[ticker]['Equity Multiplier'] = d_fundamentals['equity_multiplier']
 
             d_FAdata[ticker]['D/Eq'] = d_fundamentals['D/Eq']
-            
+
     ################################################################################
 
         print('not candidates anymore', set(l_FAs)-set(FAcandidates)-set(l_statement_pending)-set(l_statement_missing))
@@ -1539,11 +1510,10 @@ class FA:
 
         print()
         for ticker in d_portfolio.keys():
-            if not ticker in l_statement_pending+FAcandidates:
+            if ticker not in l_statement_pending+FAcandidates:
                 print('SELL!!!', ticker)
 
         return FAcandidates, d_FAdata, yahoo, l_statement_pending, l_statement_missing, l_multiples
-
 
     def linreg(self, X, Y):
         """
@@ -1561,21 +1531,20 @@ class FA:
         for x, y in zip(X, Y):
             Sx = Sx + x
             Sy = Sy + y
-            Sxx = Sxx + x*x
-            Syy = Syy + y*y
-            Sxy = Sxy + x*y
+            Sxx = Sxx + x * x
+            Syy = Syy + y * y
+            Sxy = Sxy + x * y
         det = Sxx * N - Sx * Sx
         a, b = (Sxy * N - Sy * Sx)/det, (Sxx * Sy - Sx * Sxy)/det
         meanerror = residual = 0.0
 ##        for x, y in map(None, X, Y):
         for x, y in zip(X, Y):
-            meanerror = meanerror + (y - Sy/N)**2
-            residual = residual + (y - a * x - b)**2
-        RR = 1 - residual/meanerror
+            meanerror = meanerror + (y - Sy / N) ** 2
+            residual = residual + (y - a * x - b) ** 2
+        RR = 1 - residual / meanerror
         ss = residual / (N-2)
         Var_a, Var_b = ss * N / det, ss * Sxx / det
         return a, b, RR
-
 
     def stmtERROR(self, ticker, l_FAs=[], url='', suffix='error'):
 
@@ -1585,11 +1554,10 @@ class FA:
             fd.close()
         else:
             fd = open('FAissues.txt', 'a')
-            fd.write('%s %s\n' %(ticker, url,))
+            fd.write('%s %s\n' %(ticker, url))
             fd.close()
 
         return
-
 
     def stmtPEND(self, ticker):
 
@@ -1600,8 +1568,7 @@ class FA:
 
         return
 
-
-    def check_dividend_historic(self, ticker, d_ADR, time,):
+    def check_dividend_historic(self, ticker, d_ADR, time):
 
         year2 = time[0]
         month2 = time[1]
@@ -1631,7 +1598,7 @@ class FA:
 
         d_dividends = {}
         l_months = []
-        for i_line in range(1,len(lines_dividend)):
+        for i_line in range(1, len(lines_dividend)):
 
             line = str(lines_dividend[i_line])
             if 'Split' in line:
@@ -1656,23 +1623,24 @@ class FA:
                 month = 1
             elif month == 1 and 12 in l_months:
                 year -= 1
-            elif month not in l_months and month-1 in l_months and day in range(1,11+1,):  # e.g. DGX, GD
+            elif month not in l_months and month-1 in l_months and day in range(1, 11+1):  # e.g. DGX, GD
                 month -= 1
-            elif month not in l_months and month+1 in l_months and day in range(27,31+1):  # e.g. CPSI, GD
+            elif month not in l_months and month+1 in l_months and day in range(27, 31+1):  # e.g. CPSI, GD
                 month += 1
             else:
                 l_months += [month]
 
-            if not year in d_dividends.keys():
+            if year not in d_dividends.keys():
                 d_dividends[year] = {}
 
-            if not month in d_dividends[year].keys():
+            if month not in d_dividends[year].keys():
                 d_dividends[year][month] = 0
             ## extra dividend or Yahoo error
-            elif dividend == d_dividends[year][month]: ## e.g. CHRW error
+            elif dividend == d_dividends[year][month]:  # e.g. CHRW error
                 continue
             ## extra dividend (prev, curr = next)
-            elif dividend == float(lines_dividend[i_line+1].strip().split(',')[1]): ## e.g. 2002 HNZ extra dividend
+            elif dividend == float(
+                lines_dividend[i_line+1].strip().split(',')[1]):  # e.g. 2002 HNZ extra dividend
                 d_dividends[year][month] = float(line.strip().split(',')[1])
                 continue
             ## extra dividend (curr, prev = next) ## e.g. 2010 RAVN extra dividend
@@ -1700,8 +1668,8 @@ class FA:
         for year in range(
             max(
                 ## go back 10 years
-                max(d_dividends.keys())-10,
-                min(d_dividends.keys())+1,
+                max(d_dividends.keys()) - 10,
+                min(d_dividends.keys()) + 1,
                 ),
             max(d_dividends.keys())-1,
             ):
@@ -1713,9 +1681,9 @@ class FA:
                 bool_dividend_not_decreasing = False
                 print('year', year)
                 break
-            if max(d_dividends.keys())-1 not in d_dividends.keys():
+            if max(d_dividends.keys()) - 1 not in d_dividends.keys():
                 bool_dividend_not_decreasing = False
-                print('max year', max(d_dividends.keys())-1)
+                print('max year', max(d_dividends.keys()) - 1)
                 break
             if all([
                 ## 1) no change from annual to quarterly dividend (e.g. SYK 2008-2009)
@@ -1739,7 +1707,6 @@ class FA:
                 break
 
         return bool_dividend_not_decreasing
-
 
     def check_if_zero(
         self,
@@ -1782,14 +1749,14 @@ class FA:
             dic = d_keys[stmt]['dic']
             l_keys = d_keys[stmt]['keys']
             for key in l_keys:
-                if not key in dic[ticker].keys():
+                if key not in dic[ticker].keys():
                     print(key, 'not in', stmt, 'stmt')
                     bool_skip = True
                     return bool_skip
                 print(ticker, key, dic[ticker][key][index0], type(dic[ticker][key][index0]))
-                
+
                 if any([
-                    dic[ticker][key][index0] in ('-', '--',),
+                    dic[ticker][key][index0] in ('-', '--'),
                     dic[ticker][key][index0] <= 0,
                     ]):
                     print(ticker, key, dic[ticker][key][index0], dic[ticker][key][index1])
@@ -1822,7 +1789,7 @@ class FA:
             dic = d_keys[stmt]['dic']
             l_keys = d_keys[stmt]['keys']
             for key in l_keys:
-                if not key in list(dic[ticker].keys()):
+                if key not in list(dic[ticker].keys()):
                     print(key, 'not in', stmt)
                     bool_skip = True
                     return bool_skip
@@ -1834,7 +1801,6 @@ class FA:
 
         return bool_skip
 
-
     def calc_fundamentals_and_multiples(
         self,
         ticker, d_income_year, d_balance_year, d_cash_year,
@@ -1843,7 +1809,7 @@ class FA:
         ):
 
         d_ratios = {
-            'market': {}, 'debt': {}, 'profitability': {}, 'market': {},}
+            'market': {}, 'debt': {}, 'profitability': {}, 'market': {}}
 
         d_fundamentals = {}
         d_multiples = {}
@@ -1855,21 +1821,19 @@ class FA:
         minuend = d_income_year[ticker]['Total Revenue'][index0]
         subtrahend = d_income_year[ticker]['Cost of Revenue, Total'][index0]
         gross_profit = minuend - subtrahend
-        
+
         gpm_curr = (
             gross_profit / d_income_year[ticker]['Total Revenue'][index0]
             )
-        opm_curr = (
-            d_income_year[ticker]['Operating Income'][index0]
-            /
-            d_income_year[ticker]['Total Revenue'][index0]
-            )
+        dividend = d_income_year[ticker]['Operating Income'][index0]
+        divisor = d_income_year[ticker]['Total Revenue'][index0]
+        opm_curr = dividend / divisor
         npm_curr = (
             d_income_year[ticker]['Net Income Before Extra. Items'][index0]
             /
             d_income_year[ticker]['Total Revenue'][index0]
             )
-        
+
         pe = mc_local_currency/(
             d_income_year[ticker]['Net Income Before Extra. Items'][index0]
             )
@@ -1912,31 +1876,24 @@ class FA:
             ev -= d_balance_year[ticker]['Cash and Short Term Investments'][index0]
         else:
             if 'Short Term Investments' in list(d_balance_year[ticker].keys()):
-                if source == 'Yahoo' and d_balance_year[ticker]['Short Term Investments'][index0] in ('-', '--',):
+                if source == 'Yahoo' and d_balance_year[ticker]['Short Term Investments'][index0] in ('-', '--'):
                     d_balance_year[ticker]['Short Term Investments'][index0] = 0
                 ev -= d_balance_year[ticker]['Short Term Investments'][index0]
             if 'Cash' in list(d_balance_year[ticker].keys()):
                 ev -= d_balance_year[ticker]['Cash'][index0]
-                if 'Cash & Equivalents' in list(d_balance_year[ticker].keys()):
-##                        if d_balance_year[ticker]['Cash'][0] == 0:
-##                            ev -= d_balance_year[ticker]['Cash & Equivalents'][0]
-##                        else:
-##                            print d_balance_year[ticker]['Cash'][0]
-                        print(d_balance_year[ticker]['Cash & Equivalents'][index0])
-                        stopstopstop1
-            elif 'Cash & Equivalents' in list(d_balance_year[ticker].keys()):
-                -d_balance_year[ticker]['Cash & Equivalents'][index0]
-                if 'Short Term Investments' in list(d_balance_year[ticker].keys()):
+            elif 'Cash & Equivalents' in d_balance_year[ticker].keys():
+                ev -= d_balance_year[ticker]['Cash & Equivalents'][index0]
+                if 'Short Term Investments' in d_balance_year[ticker].keys():
                     print(d_balance_year[ticker]['Short Term Investments'][index0])
                     stopstopstop2
-                if 'Cash' in list(d_balance_year[ticker].keys()):
+                if 'Cash' in d_balance_year[ticker].keys():
                     print(d_balance_year[ticker]['Cash'][index0])
                     stopstopstop3
 
         ## net tangible assets (E/NTA is same as ROE, but excluding intangibles)
         ## E/NTA tells how large an investment is required to grow earnings...
         NTA = d_balance_year[ticker]['Total Equity'][index0]
-        if 'Other Intangibles' in list(d_balance_year[ticker].keys()):
+        if 'Other Intangibles' in d_balance_year[ticker].keys():
             NTA -= d_balance_year[ticker]['Other Intangibles'][index0]
         if 'Goodwill' in d_balance_year[ticker].keys():
             if d_balance_year[ticker]['Goodwill'][index0] != '-':
@@ -1986,7 +1943,7 @@ class FA:
             cashflow_dividends = d_cash_year[ticker]['Total Cash Dividends Paid'][index0]
         else:
             cashflow_dividends = 0
-        if cashflow_dividends in ('-', '--',):
+        if cashflow_dividends in ('-', '--'):
             cashflow_dividends = 0
 
         #
@@ -1998,7 +1955,7 @@ class FA:
             EVFCF = ev / fcf
             EVOCF = ev / ocf
         else:
-            if 'Total Long Term Debt' in d_balance_year[ticker].keys(): ## not on BW balance sheet if zero
+            if 'Total Long Term Debt' in d_balance_year[ticker].keys():  # not on BW balance sheet if zero
                 print('long term debt', d_balance_year[ticker]['Total Long Term Debt'][index0])
             try:
                 print(
@@ -2018,7 +1975,7 @@ class FA:
         #
         # append to dictionary
         #
-        
+
         # ratios
         d_fundamentals['D/Eq'] = de
         d_fundamentals['ROE'] = roe_curr
