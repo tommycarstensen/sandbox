@@ -147,25 +147,25 @@ class FA:
             'Cash from Operating Activities': None,
             }
         d_businessweek2reuters = {
-            ## income statement
+            # income statement
             'TOTAL REVENUES': 'Total Revenue',
             'OPERATING INCOME': 'Operating Income',
             'NET INCOME': 'Net Income',
             'NET INCOME TO COMMON EXCLUDING EXTRA ITEMS':
             'Net Income Before Extra. Items',
             'Cost of Goods Sold': 'Cost of Revenue, Total',
-            ## balance sheet
+            # balance sheet
             'TOTAL EQUITY': 'Total Equity',
             'TOTAL ASSETS': 'Total Assets',
             'TOTAL CASH AND SHORT TERM INVESTMENTS': 'Cash and Short Term Investments',
             'Long-Term Debt': 'Total Long Term Debt',
-            ## cash flow
+            # cash flow
             'CASH FROM OPERATIONS': 'Cash from Operating Activities',
             'TOTAL DIVIDEND PAID': 'Total Cash Dividends Paid',
             'Capital Expenditure': 'Capital Expenditures',
             }
 
-        ## skip
+        # skip
         if len(tickers) > 5:
             for path in (
                 'statement_fundamentals.txt', 'multiples.txt',
@@ -222,7 +222,7 @@ class FA:
 #                ticker_yahoo.endswith('.RG'),  # Latvia/Riga not covered by FT
 #                ticker_yahoo.endswith('.MC'),  # Madrid Comercial, dissapeared from ft...
                 ]):
-                ## It's not possible to scrape Yahoo any longer!
+                # It's not possible to scrape Yahoo any longer!
                 source = 'Yahoo'
                 index0 = 0  # new to old
                 index1 = 1
@@ -259,9 +259,9 @@ class FA:
                 if ticker in d_indexes[index]:
                     set_indexes |= set([index])
 
-            ##
-            ## parse income statement, annual
-            ##
+            #
+            # parse income statement, annual
+            #
 
 ##            ## Reuters only reports one year without login. I need 2 for YoY calculations.
 ##            url = 'http://www.reuters.com/finance/stocks/incomeStatement?stmtType=INC&perType=ANN&symbol=%s' %(ticker_reuters)
@@ -298,13 +298,12 @@ class FA:
                         statement_error = True
 
             if source == 'ADVFN':
-                ## ADVFN does annual data back to 1993, but only for US markets etc.
+                # ADVFN does annual data back to 1993, but only for US markets etc.
     ##            url_advfn = http://uk.advfn.com/p.php?pid=financials&btn=start_date&mode=annual_reports&symbol=NYSE%3AIBM&start_date=18
                 if 'LSE:' not in ticker_advfn and ':' not in ticker_advfn:
                     urls = (  # : is %3A
                         'http://www.advfn.com/p.php?pid=financials&btn=start_date&mode=annual_reports&symbol=NYSE:{}'.format(ticker_advfn),
                         'http://www.advfn.com/p.php?pid=financials&btn=start_date&mode=annual_reports&symbol=NASDAQ:{}'.format(ticker_advfn),
-    ##                    'http://www.advfn.com/p.php?pid=financials&btn=start_date&mode=annual_reports&symbol={}'.format(ticker_advfn),
                         )
                 else:
                     urls = ('http://www.advfn.com/p.php?pid=financials&btn=start_date&mode=annual_reports&symbol={}'.format(ticker_advfn),)
@@ -393,9 +392,9 @@ class FA:
 ##                    d_income_year[ticker][d_businessweek2reuters[key]] = d_income_year[ticker][key]
 ####                    del d_income_year[ticker][key]
 
-            ##
-            ## check income statement before proceeding with parsing other statements
-            ##
+            #
+            # check income statement before proceeding with parsing other statements
+            #
             if statement_error is True:
                 self.stmtERROR(ticker, l_FAs=l_FAs, url=url)
                 print('income statement not available')
@@ -614,7 +613,7 @@ class FA:
                 continue
 
             if any([
-                sector in ['Bank', 'Insurance', 'Financials', 'financials',],
+                sector in ['Bank', 'Insurance', 'Financials', 'financials'],
                 'Cost of Revenue, Total' not in d_income_year[ticker].keys(),
                 ]):
                 if industry not in [
@@ -656,23 +655,12 @@ class FA:
                     'Consumer Lending',  # HAWK
                     'Diversified REITs',  # AU:MGR
                     'Real Estate Services',
-##                    'Managed Healthcare',  # AET
-##                    'Leisure & Recreation',  # AMC Holding company...
-##                    'Business Support Services',  # CBZ
-##                    'Professional Information Services',  # CLGX
-##                    'Industrial Conglomerates',  # SIEGn.DE
-##                    'Oil & Gas Exploration and Production',  # HGT
-##                    'Advertising & Marketing',  # HNT
-##                    'Passenger Transportation, Ground & Sea',  # HVB
-##                    'Tires & Rubber Products',  # IRC
-##                    'Homebuilding',  # MDC
-##                    'Healthcare Facilities & Services',  # MOH
                     'undefined',
                     ]:
                     print(industry)
                     print(sector)
                     if sector in [
-                        'Bank', 'Insurance', 'Financials', 'financials',]:
+                        'Bank', 'Insurance', 'Financials', 'financials']:
                         stop_tmp
                 fd = open('index_financials.txt', 'a')
                 fd.write('%s\n' %(ticker))
@@ -762,7 +750,8 @@ class FA:
                     fd.close()
                 else:
                     fd = open('FAissues.txt', 'a')
-                    fd.write('%s debt/equity %s\n' %(ticker,d_fundamentals['D/Eq']))
+                    fd.write('%s debt/equity %s\n' %(
+                        ticker, d_fundamentals['D/Eq']))
                     fd.close()
                 print('Debt/Eq.', d_fundamentals['D/Eq'])
                 if ticker not in d_portfolio.keys():
@@ -874,7 +863,6 @@ class FA:
                     ## Could be a non-parsed dash...
                     len(dic_10year['Book Value Per Share']) < 9,
                     ]):
-##                if ticker not in ['GOOG','BIDU'] and len(dic_10year['Shares Outstanding']) < 10:
                     if ticker not in l_FAs:
                         if len(dic_10year['SHARES OUTSTANDING']) == 9:
                             fd = open('statement_pending.txt', 'a')
@@ -960,7 +948,6 @@ class FA:
 ##                        stop
 
                 if min(dic_10year['SHARES OUTSTANDING']) == 0:
-##                if ticker not in ['GOOG','BIDU',] and (assets == 0 or shares == 0):
                     if i != 0:
                         print('zero shares, assets and/or liabilities. listed less than 10 years?', assets, shares)
                     else:
@@ -977,7 +964,6 @@ class FA:
                     min((x for x in dic_10year['Operating Income'] if x != '-')) < 0,
                     min((x for x in dic_10year['Operating Cash Flow'] if x != '-')) < 0,
                     ]):
-##                elif ticker not in ['GOOG','BIDU',] and (min(l_equity) < 0 or min(l_EBIT) < 0):
                     print('Operating Income', dic_10year['Operating Income'])
                     print('Operating Cash FLow', dic_10year['Operating Cash Flow'])
                     print('equity', l_equity)
@@ -1129,7 +1115,7 @@ class FA:
                 r_sales_log = 0
 
 ##            try:
-##                dic_10year = parse_MSN.MSN().key_ratios_10_year_summary(ticker_msn,dic_10year,)
+##                dic_10year = parse_MSN.MSN().key_ratios_10_year_summary(ticker_msn, dic_10year,)
 ##            except:
 ##                l_statement_missing += [ticker]
 ##                continue
@@ -1144,8 +1130,8 @@ class FA:
 
             else:
 
-##                for k in ['Return on Equity (%)','Net Profit Margin (%)',]:
-                for k in ['RETURN ON EQUITY (%)', 'NET PROFIT MARGIN (%)',]:
+##                for k in ['Return on Equity (%)','Net Profit Margin (%)']:
+                for k in ['RETURN ON EQUITY (%)', 'NET PROFIT MARGIN (%)']:
                     l = list(reversed(dic_10year[k]))  # oldest at top
                     l = dic_10year[k]  # new to old (morningstar)
 
@@ -1400,7 +1386,7 @@ class FA:
 ##                            FA = False
 ##                        else:
 ##                            fd = open('FAissues.txt','a')
-##                            fd.write('%s %s multiple %s\n' %(ticker,key,d_multiples[key],))
+##                            fd.write('%s %s multiple %s\n' %(ticker,key, d_multiples[key],))
 ##                            fd.close()
 ##                        break
             if FA is False and ticker not in d_portfolio.keys():
@@ -1415,11 +1401,14 @@ class FA:
                         fd = open('multiples.txt', 'a')
                         fd.write('%s\n' %(ticker))
                         fd.close()
-                        print('div yield < minimum div yield', d_multiples['div_yield'], '<', div_yield_min)
+                        print(
+                            'div yield < minimum div yield',
+                            d_multiples['div_yield'], '<', div_yield_min)
                         continue
                     else:
                         fd = open('FAissues.txt', 'a')
-                        fd.write('%s %s div yield\n' %(ticker,d_multiples['div_yield']))
+                        fd.write('%s %s div yield\n' %(
+                            ticker, d_multiples['div_yield']))
                         fd.close()
 
             if all([
@@ -1427,7 +1416,7 @@ class FA:
                 abs(d_cash_year[ticker]['Total Cash Dividends Paid'][col1cy]) > 0,
                 compensation != 'N/A',
                 ]):
-                x2 = 1.2*abs(d_cash_year[ticker]['Total Cash Dividends Paid'][col1cy]
+                x2 = 1.2*abs(d_cash_year[ticker]['Total Cash Dividends Paid'][col1cy])
                 if compensation > x2:
                     print('compensaiton', compensation)
                     print('dividend   ', d_cash_year[ticker]['Total Cash Dividends Paid'][col1cy])
@@ -1515,7 +1504,6 @@ class FA:
                 'ROA': d_fundamentals['ROA']*100,
                 'ROE': d_fundamentals['ROE']*100,
                 'E/NTA': d_fundamentals['E/NTA']*100,
-##                'ROIC': d_fundamentals['ROIC']*100,
                 'grow5y_sales': 0, 'grow5y_income': 0,
                 'MA200': d_msn['ma200'], 'MA50': d_msn['ma50'],
                 'price': price,
@@ -1533,10 +1521,7 @@ class FA:
                 'relative strength': d_msn['relative strength'],
                 }
 
-            for key in [
-##                'GPM',
-                'NPM', 'ROE', 'ROA', 'ATO',
-                ]:
+            for key in ('NPM', 'ROE', 'ROA', 'ATO'):
                 d_FAdata[ticker][key] = d_fundamentals[key]*100
 
             d_FAdata[ticker]['Equity Multiplier'] = d_fundamentals['equity_multiplier']
@@ -1720,15 +1705,15 @@ class FA:
                 ),
             max(d_dividends.keys())-1,
             ):
-            if not year+1 in list(d_dividends.keys()):
+            if year+1 not in d_dividends.keys():
                 bool_dividend_not_decreasing = False
                 print('year+1', year+1)
                 break
-            if not year in d_dividends.keys():
+            if year not in d_dividends.keys():
                 bool_dividend_not_decreasing = False
                 print('year', year)
                 break
-            if not max(d_dividends.keys())-1 in d_dividends.keys():
+            if max(d_dividends.keys())-1 not in d_dividends.keys():
                 bool_dividend_not_decreasing = False
                 print('max year', max(d_dividends.keys())-1)
                 break
@@ -1742,11 +1727,11 @@ class FA:
                     all([
                         len(d_dividends.keys()) > 15,
                         sum(d_dividends[year+1].values()) <= sum(d_dividends[year].values()),
-                        ),
+                        ]),
                     all([
                         len(d_dividends.keys()) <= 15,
                         sum(d_dividends[year+1].values()) < sum(d_dividends[year].values()),
-                        ),
+                        ]),
                     ]),
                 ]):
                 bool_dividend_not_decreasing = False
@@ -1826,9 +1811,8 @@ class FA:
             'cashflow': {
                 'dic': d_cash_year,
                 'keys': [
-##                    'Total Cash Dividends Paid',
                     ],
-                }
+                },
             }
 
         if div_yield_min > 0:
@@ -1842,11 +1826,7 @@ class FA:
                     print(key, 'not in', stmt)
                     bool_skip = True
                     return bool_skip
-                if (
-                    dic[ticker][key][index0] == 0
-##                    or
-##                    dic[ticker][key][1] == 0
-                    ):
+                if dic[ticker][key][index0] == 0:
                     print(ticker, key, dic[ticker][key][index0], dic[ticker][key][index1])
                     if key != 'Total Cash Dividends Paid':
                         bool_skip = True
@@ -1875,7 +1855,6 @@ class FA:
         minuend = d_income_year[ticker]['Total Revenue'][index0]
         subtrahend = d_income_year[ticker]['Cost of Revenue, Total'][index0]
         gross_profit = minuend - subtrahend
-            )
         
         gpm_curr = (
             gross_profit / d_income_year[ticker]['Total Revenue'][index0]
@@ -1905,62 +1884,19 @@ class FA:
             d_income_year[ticker]['Total Revenue'][index1]
             )
 
-##        NOPAT1 = d_income_year[ticker]['Operating Income'][0]-d_income_year[ticker]['Income Tax Expense'][0]
-##        ## http://en.wikipedia.org/wiki/Tax_rates_around_the_world
-##        if '.HK' in ticker:
-##            NOPAT2 = d_income_year[ticker]['Operating Income'][0]*(1-0.165)
-##        elif '.TW' in ticker:
-##            NOPAT2 = d_income_year[ticker]['Operating Income'][0]*(1-0.17)
-##        elif '.JP' in ticker or 'JP:' in ticker:
-##            NOPAT2 = d_income_year[ticker]['Operating Income'][0]*(1-0.4069)
-##        else:
-##            NOPAT2 = d_income_year[ticker]['Operating Income'][0]*(1-0.35)
-##        if abs(NOPAT1-NOPAT2)/max(NOPAT1,NOPAT2) > 0.5 and '.JP' not in ticker and 'JP:' not in ticker:
-##            print NOPAT1, NOPAT2
-##            print abs(NOPAT1-NOPAT2)/max(NOPAT1,NOPAT2)
-##            stop_NOPAT
-##        NOPAT = NOPAT2
+        #
+        # balance sheet
+        #
 
-        ## NOPAT = Net Operating Profit After Taxes (earnings for bond holders and shareholders)
-        ## EBIT = NOP + Non-Operating Income (if any...)
-        ## NOPAT = EBIT-taxes
-        ## NOPAT is a more accurate look at operating efficiency for leveraged companies. It does not include the tax savings many companies get because they have existing debt.
-        ## N.B. It should be net interest expense *AFTER* taxes!!!
-        ## "owner earnings"
-##        NOPAT = d_income_year[ticker][s_income][0]+(1-0.35)*d_income_year[ticker]['NET INTEREST EXPENSE'][0]
-##        Assets_Total = d_balance_year[ticker]['Total Assets'][0]
-##        ROIC = Assets_Total-CashExcess-Liabilities
-##        WACC = cost of equit * equity/(equity+debt)  +  cost of debt * (1-tax rate) * debt/(equity+debt)
-        ## ROIC should be bigger than WACC
-
-        ##
-        ## balance sheet
-        ##
-##            debt = d_balance_quarter[ticker]['Total Long Term Debt'][col1b]
-##            debt0 = d_balance_quarter[ticker]['Total Long Term Debt'][col2b]
-##            if d_balance_quarter[ticker]['Notes Payable/Short Term Debt'][col1b] != None:
-##                print d_balance_quarter[ticker]['Notes Payable/Short Term Debt']
-##                debt += d_balance_quarter[ticker]['Notes Payable/Short Term Debt'][col1b]
-##                debt0 += d_balance_quarter[ticker]['Notes Payable/Short Term Debt'][col2b]
-##            if d_balance_quarter[ticker]['Current Port. of LT Debt/Capital Leases'][col1b] != None:
-##                print d_balance_quarter[ticker]['Current Port. of LT Debt/Capital Leases']
-##                debt += d_balance_quarter[ticker]['Current Port. of LT Debt/Capital Leases'][col1b]
-##                debt0 += d_balance_quarter[ticker]['Current Port. of LT Debt/Capital Leases'][col2b]
-####            if d_balance_quarter[ticker]['Total Short Term Borrowings'][col1b] != None: ## e.g. NAL
-####                debt += d_balance_quarter[ticker]['Total Short Term Borrowings'][col1b]
-####                debt0 += d_balance_quarter[ticker]['Total Short Term Borrowings'][col2b]
-
-        if 'Total Long Term Debt' in list(d_balance_year[ticker].keys()): ## not on BW balance sheet if zero
+        if 'Total Long Term Debt' in list(d_balance_year[ticker].keys()):  # not on BW balance sheet if zero
             de = (
                 d_balance_year[ticker]['Total Long Term Debt'][index0]
                 /
                 d_balance_year[ticker]['Total Equity'][index0]
                 )
-            de_prev = (
-                d_balance_year[ticker]['Total Long Term Debt'][index1]
-                /
-                d_balance_year[ticker]['Total Equity'][index1]
-                )
+            dividend = d_balance_year[ticker]['Total Long Term Debt'][index1]
+            divisor = d_balance_year[ticker]['Total Equity'][index1]
+            de_prev = dividend / divisor
         else:
             de = 0
             de_prev = 0
@@ -1970,7 +1906,7 @@ class FA:
         ## +minority interest
         ## +preferred equity
         ev = mc_local_currency
-        if 'Total Long Term Debt' in list(d_balance_year[ticker].keys()): ## not on BW balance sheet if zero
+        if 'Total Long Term Debt' in list(d_balance_year[ticker].keys()):  # not on BW balance sheet if zero
             ev += d_balance_year[ticker]['Total Long Term Debt'][index0]
         if 'Cash and Short Term Investments' in list(d_balance_year[ticker].keys()):
             ev -= d_balance_year[ticker]['Cash and Short Term Investments'][index0]
@@ -2006,24 +1942,6 @@ class FA:
             if d_balance_year[ticker]['Goodwill'][index0] != '-':
                 NTA -= d_balance_year[ticker]['Goodwill'][index0]
 
-##        ## invested capital
-##        ## http://www.fool.com/investing/general/2007/01/05/quick-accounting-basics-roic.aspx
-##        ## Basically, this equation says that the capital invested is the sum of all the assets, and subtracts out the assets that haven't yet been invested (cash and cash equivalents). Non-interest-bearing current liabilities are also subtracted out because they represent "interest-free" loans. For example, if I own a clothing store and a supplier extends me credit to buy and sell his apparel, I didn't have to expend any capital to get the use of the assets (the clothes), so this doesn't go into the IC equation. What we're left with is the total invested capital.
-##        IC = d_balance_year[ticker]['Total Assets'][0]
-##        l_subtract = [
-##            'Cash & Equivalents', ## should be *excess* cash cf. http://wiki.fool.com/Return_on_invested_capital
-##            'Accounts Payable',
-##            'Accrued Expenses',
-####            'Current Income Taxes Payable', ## probably with interest...
-####            'Unearned Revenue, Current',
-##            ]
-##        for key in l_subtract:
-##            if key in d_balance_year[ticker].keys():
-##                IC -= d_balance_year[ticker][key][0]
-##                if d_balance_year[ticker][key][0] < 0:
-##                    print ticker, key
-##                    stop
-
         ##
         ## income statement and balance sheet
         ##
@@ -2055,22 +1973,6 @@ class FA:
         ## cash flow
         ##
 
-##
-##            ocf = 0
-##            fcf = 0
-##            cashflow_dividends = 0
-##            for i in range(len(cf_columns_y)):
-##                ocf += cf_columns_y[i]*d_cash_quarter[ticker]['Cash from Operating Activities'][i]
-##                fcf += cf_columns_y[i]*(
-##                    d_cash_quarter[ticker]['Cash from Operating Activities'][i]+
-##                    d_cash_quarter[ticker]['Capital Expenditures'][i]
-##                    )
-##                if not (
-##                    cashflow_dividends == d_cash_quarter[ticker]['Total Cash Dividends Paid'][i]
-##                    and
-##                    cf_columns_y[i] == -1
-##                    ):
-##                    cashflow_dividends += cf_columns_y[i]*d_cash_quarter[ticker]['Total Cash Dividends Paid'][i]
         fcf = (
             d_cash_year[ticker]['Cash from Operating Activities'][index0]
             -
@@ -2087,19 +1989,23 @@ class FA:
         if cashflow_dividends in ('-', '--',):
             cashflow_dividends = 0
 
-        ##
-        ## cashflow market ratios
-        ##
+        #
+        # cashflow market ratios
+        #
         pcf = mc_local_currency/d_cash_year[ticker]['Cash from Operating Activities'][index0]
 
         if ev > 0 and fcf > 0:
-            EVFCF = ev/fcf
-            EVOCF = ev/ocf
+            EVFCF = ev / fcf
+            EVOCF = ev / ocf
         else:
             if 'Total Long Term Debt' in d_balance_year[ticker].keys(): ## not on BW balance sheet if zero
                 print('long term debt', d_balance_year[ticker]['Total Long Term Debt'][index0])
             try:
-                print(('cash and short term investments', d_balance_year[ticker]['Cash and Short Term Investments'][index0]))
+                print(
+                    'cash and short term investments',
+                     d_balance_year[ticker][
+                         'Cash and Short Term Investments'][index0],
+                     )
             except KeyError:
                 pass
             EVFCF = 0.
@@ -2109,11 +2015,11 @@ class FA:
         print('mc_local_currency', mc_local_currency)
         div_yield = abs(cashflow_dividends)/mc_local_currency
 
-        ##
-        ## append to dictionary
-        ##
+        #
+        # append to dictionary
+        #
         
-        ## ratios
+        # ratios
         d_fundamentals['D/Eq'] = de
         d_fundamentals['ROE'] = roe_curr
         d_fundamentals['ROA'] = roa_curr
@@ -2121,14 +2027,13 @@ class FA:
         d_fundamentals['ATO'] = ATO
         d_fundamentals['equity_multiplier'] = equity_multiplier
         d_fundamentals['GPM'] = gpm_curr
-##        d_fundamentals['ROIC'] = ROIC
         d_fundamentals['E/NTA'] = ENTA
 
-        ## sums
+        # sums
         d_fundamentals['FCF'] = fcf
         d_fundamentals['OCF'] = ocf
 
-        ## numbers
+        # numbers
         d_fundamentals['cashflow_dividends'] = cashflow_dividends
 
         d_multiples['div_yield'] = div_yield
