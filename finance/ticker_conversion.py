@@ -3,11 +3,11 @@ import import_tickers
 tickers, d_indexes, d_ADR = import_tickers.main()
 
 d_yahoo2msn = {
-    'GB:BG':'GB:BG.',
-    'GB:RB':'GB:RB.',
-    'GB:SN':'GB:SN.',
-    'FR:EF1':'FR:EI',
-##            'BFb':'BF.B',
+    'GB:BG': 'GB:BG.',
+    'GB:RB': 'GB:RB.',
+    'GB:SN': 'GB:SN.',
+    'FR:EF1': 'FR:EI',
+##            'BFb': 'BF.B',
     }
 
 ## also bw2reuters
@@ -15,202 +15,202 @@ d_yahoo2msn = {
 ## retuers just different...
 d_yahoo2reuters = {
     ## Austria
-    'MMK.VI':'MMKV.VI',
-    'EBS.VI':'ERST.VI',
-    'EVN.VI':'EVNV.VI',
-    'RHI.VI':'RHIV.VI',
-    'OMV.VI':'OMVV.VI',
+    'MMK.VI': 'MMKV.VI',
+    'EBS.VI': 'ERST.VI',
+    'EVN.VI': 'EVNV.VI',
+    'RHI.VI': 'RHIV.VI',
+    'OMV.VI': 'OMVV.VI',
     ## Belgium
-    'BELG.BR':'BCOM.BR',
-    'OME.BR':'OMEP.BR',
+    'BELG.BR': 'BCOM.BR',
+    'OME.BR': 'OMEP.BR',
     ## Denmark
-    'NOVO-B.CO':'NOVOb.CO',
+    'NOVO-B.CO': 'NOVOb.CO',
     ## England
-    'AU.L':'AUTN.L','BA.L':'BAq.L','BBY.L':'BALF.L','BT.A.L':'BT.L','SDRC.L':'SDR.L',
-    'EVR.L':'HK1q.L',
+    'AU.L': 'AUTN.L', 'BA.L': 'BAq.L', 'BBY.L': 'BALF.L', 'BT.A.L': 'BT.L', 'SDRC.L': 'SDR.L',
+    'EVR.L': 'HK1q.L',
     ## France
-    'EF1.PA':'ESSI.PA','VK.PA':'VLLP.PA','DSY.PA':'DAST.PA','ALO.PA':'ALSO.PA','SU.PA':'SCHN.PA','FP.PA':'TOTF.PA','SAN.PA':'SASY.PA',
-    'BN.PA':'DANO.PA','ALU.PA':'ALUA.PA',
-    'DG.PA':'SGEF.PA',
+    'EF1.PA': 'ESSI.PA', 'VK.PA': 'VLLP.PA', 'DSY.PA': 'DAST.PA', 'ALO.PA': 'ALSO.PA', 'SU.PA': 'SCHN.PA', 'FP.PA': 'TOTF.PA', 'SAN.PA': 'SASY.PA',
+    'BN.PA': 'DANO.PA', 'ALU.PA': 'ALUA.PA',
+    'DG.PA': 'SGEF.PA',
     ## Greece
-    'OPAP.AT':'OPAR.AT',
+    'OPAP.AT': 'OPAR.AT',
     ## Netherlands
-    'MT.AS':'ISPA.AS',
-    'DSM.AS':'DSMN.AS','UNA.AS':'UNc.AS','AH.AS':'AHLN.AS',
+    'MT.AS': 'ISPA.AS',
+    'DSM.AS': 'DSMN.AS', 'UNA.AS': 'UNc.AS', 'AH.AS': 'AHLN.AS',
     'HEIA.AS': 'HEIN.AS',
     ## Germany
-    'HEN3.DE':'HNKG_p.DE', 'BAS.DE':'BASF.DE', 'ADS.DE':'ADSG.DE',
-    'TKA.DE':'TKAG.DE', 'LHA.DE':'LHAG.DE', 'SDF.DE':'SDFG.DE',
-    'BEI.DE':'BEIG.DE', 'BAYN.DE':'BAYG.DE', 'MAN.DE':'MANG.DE',
-    'SAP.DE':'SAPG.DE', 'ALV.DE':'ALVG.DE', 'BMW.DE':'BMWG.DE',
-    'CBK.DE':'CBKG.DE', 'RWE.DE':'RWEG.DE', 'DAI.DE':'DAIGn.DE',
-    'DB1.DE':'DB1Gn.DE', 'DBK.DE':'DBKGn.DE', 'DPW.DE':'DPWGn.DE',
-    'DTE.DE':'DTEGn.DE', 'EOAN.DE':'EONGn.DE', 'IFX.DE':'IFXGn.DE',
-    'LIN.DE':'LING.DE', 'MRC.DE':'MRCG.DE', 'SIE.DE':'SIEGn.DE',
-    'SZG.DE':'SZGG.DE', 'VOW.DE':'VOWG.DE',
-    'FME.DE':'FMEG.DE',
-    'FIE.DE':'FIEG.DE',
+    'HEN3.DE': 'HNKG_p.DE', 'BAS.DE': 'BASF.DE', 'ADS.DE': 'ADSG.DE',
+    'TKA.DE': 'TKAG.DE', 'LHA.DE': 'LHAG.DE', 'SDF.DE': 'SDFG.DE',
+    'BEI.DE': 'BEIG.DE', 'BAYN.DE': 'BAYG.DE', 'MAN.DE': 'MANG.DE',
+    'SAP.DE': 'SAPG.DE', 'ALV.DE': 'ALVG.DE', 'BMW.DE': 'BMWG.DE',
+    'CBK.DE': 'CBKG.DE', 'RWE.DE': 'RWEG.DE', 'DAI.DE': 'DAIGn.DE',
+    'DB1.DE': 'DB1Gn.DE', 'DBK.DE': 'DBKGn.DE', 'DPW.DE': 'DPWGn.DE',
+    'DTE.DE': 'DTEGn.DE', 'EOAN.DE': 'EONGn.DE', 'IFX.DE': 'IFXGn.DE',
+    'LIN.DE': 'LING.DE', 'MRC.DE': 'MRCG.DE', 'SIE.DE': 'SIEGn.DE',
+    'SZG.DE': 'SZGG.DE', 'VOW.DE': 'VOWG.DE',
+    'FME.DE': 'FMEG.DE',
+    'FIE.DE': 'FIEG.DE',
     ## Iceland
-    'ATLA.IC':'FOATLA.IC',
-    'FOAIR.IC':'FO-AIR.IC',
+    'ATLA.IC': 'FOATLA.IC',
+    'FOAIR.IC': 'FO-AIR.IC',
     ## Ireland
-    'PLS.IR':'PAP.I','DRS.IR':'DGO.I',
-    'PWL.IR':'PAP.I',
-    'KRX.IR':'KYGa.I',
-    'GN5.IR':'GRF_u.I',
+    'PLS.IR': 'PAP.I', 'DRS.IR': 'DGO.I',
+    'PWL.IR': 'PAP.I',
+    'KRX.IR': 'KYGa.I',
+    'GN5.IR': 'GRF_u.I',
     ## Italy
-    'SPM.MI':'SPMI.MI',
-    'TME.MI':'TLIT.MI',
+    'SPM.MI': 'SPMI.MI',
+    'TME.MI': 'TLIT.MI',
     ## Norway
-    'SCH.OL':'SBST.OL',
+    'SCH.OL': 'SBST.OL',
     ## Spain
-    'SAB.MC':'SABE.MC','FER.MC':'FER1.MC',
-    'CRI.MC':'CRIT.MC',
-    'EBRO.MC':'EVA.MC',
-    'ENG.MC':'ENAG.MC',
-    'GRF.MC':'GRLS.MC',
-    'SYV.MC':'SVO.MC', ## SACYR VALLEHERMOSO
+    'SAB.MC': 'SABE.MC', 'FER.MC': 'FER1.MC',
+    'CRI.MC': 'CRIT.MC',
+    'EBRO.MC': 'EVA.MC',
+    'ENG.MC': 'ENAG.MC',
+    'GRF.MC': 'GRLS.MC',
+    'SYV.MC': 'SVO.MC', ## SACYR VALLEHERMOSO
     ## Sweden
-    'SKF-B.ST':'SKFB.ST',
+    'SKF-B.ST': 'SKFB.ST',
     ## Mexico
-    'FEMSAUBD.MX':'FMSAUBD.MX',
-    'PE&OLES*.MX':'PENOLES.MX',
+    'FEMSAUBD.MX': 'FMSAUBD.MX',
+    'PE&OLES*.MX': 'PENOLES.MX',
     ## Kuala Lumpur
-    '2089.KL':'UTPS.KL',
+    '2089.KL': 'UTPS.KL',
     ## Singapore
-    'SCI.SI':'SCIL.SI',
-    'C07.SI':'JCYC.SI',
-    'JCNC.SI':'JCYC.SI',
-    'COS.SI':'COSC.SI',
-    'CIT.SI':'CTDM.SI',
-    'SIE.SI':'SIAE.SI',
-    'DBS.SI':'DBSM.SI',
-    'JM.SI':'JARD.SI',
+    'SCI.SI': 'SCIL.SI',
+    'C07.SI': 'JCYC.SI',
+    'JCNC.SI': 'JCYC.SI',
+    'COS.SI': 'COSC.SI',
+    'CIT.SI': 'CTDM.SI',
+    'SIE.SI': 'SIAE.SI',
+    'DBS.SI': 'DBSM.SI',
+    'JM.SI': 'JARD.SI',
     ## India
-    'BHARTIARTL.BO':'BRTI.BO',
-    'BHARTI.BO':'BRTI.BO',
-    'RCOM.BO':'RLCM.BO',
-    'HNDL.BO':'HALC.BO',
-    'MSIL.BO':'MRTI.BO',
-    'GRASIM.BO':'GRAS.BO',
-    'HUVR.BO':'HLL.BO',
-    'SCS.BO':'SATY.BO',
-    'SUNP.BO':'SUN.BO',
+    'BHARTIARTL.BO': 'BRTI.BO',
+    'BHARTI.BO': 'BRTI.BO',
+    'RCOM.BO': 'RLCM.BO',
+    'HNDL.BO': 'HALC.BO',
+    'MSIL.BO': 'MRTI.BO',
+    'GRASIM.BO': 'GRAS.BO',
+    'HUVR.BO': 'HLL.BO',
+    'SCS.BO': 'SATY.BO',
+    'SUNP.BO': 'SUN.BO',
     ## South Africa
-    'IMP.J':'IMPJ.J',
+    'IMP.J': 'IMPJ.J',
     }
 
 d_bw2yahoo = {
-    'INFO.BO':'INFY.BO',
-    'MSIL.BO':'MARUTI.BO',
-    'BHARTI.BO':'BRTI.BO',
-    'JCNC.SI':'C07.SI',
-    'SJR/B.TO':'SJRb.TO',
-    'WPRO.BO':'WIPRO.BO',
-    'CA:SJR/B':'SJRb.TO', ## ???
-    'UPL.KL':'2089.KL',
-    'PAP.IR':'PLS.IR','PWL.IR':'PLS.IR',
+    'INFO.BO': 'INFY.BO',
+    'MSIL.BO': 'MARUTI.BO',
+    'BHARTI.BO': 'BRTI.BO',
+    'JCNC.SI': 'C07.SI',
+    'SJR/B.TO': 'SJRb.TO',
+    'WPRO.BO': 'WIPRO.BO',
+    'CA:SJR/B': 'SJRb.TO', ## ???
+    'UPL.KL': '2089.KL',
+    'PAP.IR': 'PLS.IR', 'PWL.IR': 'PLS.IR',
     }
 
 d_bw2reuters = {
-    'BHARTI.BO':'BRTI.BO',
-    'EI.PA':'ESSI.PA',
-    'NESN.VX':'NESN.S',
+    'BHARTI.BO': 'BRTI.BO',
+    'EI.PA': 'ESSI.PA',
+    'NESN.VX': 'NESN.S',
     }
 
 d_msn2yahoo = {
-    'GB':'L','FR':'PA','DE':'DE','AU':'AX','ES':'MC','JP':'T','IT':'MI','SE':'ST','BE':'BR','CA':'TO','NL':'AS',
+    'GB': 'L', 'FR': 'PA', 'DE': 'DE', 'AU': 'AX', 'ES': 'MC', 'JP': 'T', 'IT': 'MI', 'SE': 'ST', 'BE': 'BR', 'CA': 'TO', 'NL': 'AS',
     }
 
 d_yahoo2bw = {
-    'VX':'S',  ## Switzerland
-#    'VX':'VX', ## Switzerland
-    'PA':'PA', ## Pakistan
-    'AB':'AB', ## Saudi Arabia
-    'SS':'CH', ## China (before Stockholm)
-    'BO':'IN', ## India
-    'VL':'LH', ## Lithuania / Vilnius
-    'AX':'AU', ## Australia
-    'SA':'BZ', ## Brazil / Sao Paolo
-    'MX':'MM', ## Mexico
-    'SI':'SP', ## Singapore
-    'TO':'CN', ## Canada
-    'HK':'HK', ## Hong Kong
-    'DE':'GR', ## Germany
-    'L':'LN', ## London
-    'T':'JP', ## Japan / Tokyo
+    'VX': 'S',  ## Switzerland
+#    'VX': 'VX', ## Switzerland
+    'PA': 'PA', ## Pakistan
+    'AB': 'AB', ## Saudi Arabia
+    'SS': 'CH', ## China (before Stockholm)
+    'BO': 'IN', ## India
+    'VL': 'LH', ## Lithuania / Vilnius
+    'AX': 'AU', ## Australia
+    'SA': 'BZ', ## Brazil / Sao Paolo
+    'MX': 'MM', ## Mexico
+    'SI': 'SP', ## Singapore
+    'TO': 'CN', ## Canada
+    'HK': 'HK', ## Hong Kong
+    'DE': 'GR', ## Germany
+    'L': 'LN', ## London
+    'T': 'JP', ## Japan / Tokyo
 
-    'QD':'QD', ## Qatar / Doha
-    'IJ':'IJ', ## Indonesia / Jakarta
-    'KL':'MK', ## Malaysia / Kuala Lumpur
-    'KS':'KS', ## (South) Korea / Seoul
-    'AT':'GA', ## Greece / Athens
+    'QD': 'QD', ## Qatar / Doha
+    'IJ': 'IJ', ## Indonesia / Jakarta
+    'KL': 'MK', ## Malaysia / Kuala Lumpur
+    'KS': 'KS', ## (South) Korea / Seoul
+    'AT': 'GA', ## Greece / Athens
 
-    'ME':'RM', ## Russia / Moscow
+    'ME': 'RM', ## Russia / Moscow
 
-    'TLV':'TLV', ## Israel / Tel Aviv  ## actually ft.com suffix...
-    'SET':'SET', ## actually ft.com suffix...
-    'JNB':'JNB', ## actually ft.com suffix...
+    'TLV': 'TLV', ## Israel / Tel Aviv  ## actually ft.com suffix...
+    'SET': 'SET', ## actually ft.com suffix...
+    'JNB': 'JNB', ## actually ft.com suffix...
 
-    'TL':'ET', ## Estonia / Tallinn
-    'VI':'AV', ## Austria / Vienna
-    'IC':'IR', ## Iceland / Reykjavik
-    'TW':'TT', ## Taiwan / Taipei
-    'MI':'IM', ## Italy / Milano
-    'HE':'FH', ## Finland / Helsinki
-    'PA':'FP', ## France / Paris
-    'ST':'SS', ## Sweden / Stockholm
-    'IR':'ID', ## Ireland / Dublin
-    'OL':'NO', ## Norway / Oslo
-    'IS':'TI', ## Turkey / Istanbul
-    'MC':'SM', ## Spain / Madrid
-    'AS':'NA', ## Netherlands / Amsterdam
-    'CO':'DC', ## Denmark / Copenhagen
-    'BR':'BB', ## Belgium / Brussels
-    'J':'SJ', ## South Africa / Johannesburg
+    'TL': 'ET', ## Estonia / Tallinn
+    'VI': 'AV', ## Austria / Vienna
+    'IC': 'IR', ## Iceland / Reykjavik
+    'TW': 'TT', ## Taiwan / Taipei
+    'MI': 'IM', ## Italy / Milano
+    'HE': 'FH', ## Finland / Helsinki
+    'PA': 'FP', ## France / Paris
+    'ST': 'SS', ## Sweden / Stockholm
+    'IR': 'ID', ## Ireland / Dublin
+    'OL': 'NO', ## Norway / Oslo
+    'IS': 'TI', ## Turkey / Istanbul
+    'MC': 'SM', ## Spain / Madrid
+    'AS': 'NA', ## Netherlands / Amsterdam
+    'CO': 'DC', ## Denmark / Copenhagen
+    'BR': 'BB', ## Belgium / Brussels
+    'J': 'SJ', ## South Africa / Johannesburg
 
-    'RG':'RG', ## Latvia / Riga
+    'RG': 'RG', ## Latvia / Riga
 
     ## Poland not on Yahoo...
-    'PW':'PW', ## Poland / Warzaw
+    'PW': 'PW', ## Poland / Warzaw
 
     ## Reuters...
-    'I':'ID', ## Ireland / Dublin
+    'I': 'ID', ## Ireland / Dublin
     }
 
 ## http://www.iso15022.org/MIC/ISO10383_MIC.pdf
 d_msnprefix2morningstar = {
-    'DE':'XETR',
-    'GB':'XLON',
-    'FR':'XPAR',
-    'ES':'XMCE',  # MERCATO CONTINUO ESPANOL
-    'CA':'XTSE',  # Toronto Stock Exchange
-    'JP':'XTKS',  # Tokyo Stock Exchange
-    'BE':'XBRU',  # Brussels, Belgium
-    'SE':'XSTO',  # Stockholm, Sweden
-    'AU':'XASX',  # Australia
+    'DE': 'XETR',
+    'GB': 'XLON',
+    'FR': 'XPAR',
+    'ES': 'XMCE',  # MERCATO CONTINUO ESPANOL
+    'CA': 'XTSE',  # Toronto Stock Exchange
+    'JP': 'XTKS',  # Tokyo Stock Exchange
+    'BE': 'XBRU',  # Brussels, Belgium
+    'SE': 'XSTO',  # Stockholm, Sweden
+    'AU': 'XASX',  # Australia
     }
 d_yahoosuffix2morningstar = {
-    'HK':'XHKG',  # Hong Kong
-#    'HK':'SEHK',  # Hong Kong
-    'VX':'XSWX',  # Switzerland
-    'SI':'XSES',  # Singapore
-    'SA':'XBSP',  # Sao Paolo, Brazil, Bovespa...
-    'BO':'XNSE',  # National Stock Exchange of India
-    'IS':'XIST',  # Istanbul
-    'L':'XLON',  # London
-    'TO':'XTSE',  # Toronto
-    'TW':'XTAI',  # Taipei, Taiwan
-    'OL':'XOSL',  # Oslo
-    'HE':'XHEL',  # Helsinki
-    'TL':'XTAL',  # Tallinn, Estonia
-    'IC':'XICE',  # Iceland
-    'CO':'XCSE',  # Copenhagen Stock Exchange
-    'IR':'XDUB',  # Dublin, Ireland
-    'MX':'XMEX',  # Mexico
-    'VL':'XLIT',  # Vilnius, Lithuania
-##    'HK':'SEHKXHKG',  # Hong Kong
-    'LS':'XLIS',  # Lisbon, Portugal
+    'HK': 'XHKG',  # Hong Kong
+#    'HK': 'SEHK',  # Hong Kong
+    'VX': 'XSWX',  # Switzerland
+    'SI': 'XSES',  # Singapore
+    'SA': 'XBSP',  # Sao Paolo, Brazil, Bovespa...
+    'BO': 'XNSE',  # National Stock Exchange of India
+    'IS': 'XIST',  # Istanbul
+    'L': 'XLON',  # London
+    'TO': 'XTSE',  # Toronto
+    'TW': 'XTAI',  # Taipei, Taiwan
+    'OL': 'XOSL',  # Oslo
+    'HE': 'XHEL',  # Helsinki
+    'TL': 'XTAL',  # Tallinn, Estonia
+    'IC': 'XICE',  # Iceland
+    'CO': 'XCSE',  # Copenhagen Stock Exchange
+    'IR': 'XDUB',  # Dublin, Ireland
+    'MX': 'XMEX',  # Mexico
+    'VL': 'XLIT',  # Vilnius, Lithuania
+##    'HK': 'SEHKXHKG',  # Hong Kong
+    'LS': 'XLIS',  # Lisbon, Portugal
     'VI': 'WBAG',  # Vienna, Austria
     }
 
@@ -223,8 +223,8 @@ def unknown2yahoo(ticker):
 
     ticker = bw2yahoo(ticker)
 
-    ticker = ticker.replace('-SEK','')
-    ticker = ticker.replace('-DKK','')
+    ticker = ticker.replace('-SEK', '')
+    ticker = ticker.replace('-DKK', '')
 
     if ticker.endswith('.SS'):
         ticker = ticker[:-3]+'.SZ'
@@ -237,12 +237,12 @@ def msn2morningstar(ticker):
     # http://financials.morningstar.com/financials/getFinancePart.html?&callback=?&t=COLO%20B&region=dnk
 
     if '.CO' in ticker:
-        ticker = ticker[:-3].replace('-','').replace('b','%20b')
+        ticker = ticker[:-3].replace('-', '').replace('b', '%20b')
     if ticker.startswith('SE:'):
-        ticker = ticker.replace('a','%20a')  # e.g. SE:ATCOa -> SE:ATCO%20a
+        ticker = ticker.replace('a', '%20a')  # e.g. SE:ATCOa -> SE:ATCO%20a
 
-    if ':' in ticker:
-        index = ticker.index(':')
+    if ': ' in ticker:
+        index = ticker.index(': ')
         try:
             ticker = d_msnprefix2morningstar[ticker[:index]]+ticker[index:]
         except:
@@ -288,9 +288,9 @@ def reuters2yahoo(ticker_reuters):
 def unknown2reuters(ticker):
 
     ## businessweek
-    ticker = ticker.replace('/A','a')
-    ticker = ticker.replace('/B','b')
-    ticker = ticker.replace('*','') ## e.g. ELEKTRA*.MX
+    ticker = ticker.replace('/A', 'a')
+    ticker = ticker.replace('/B', 'b')
+    ticker = ticker.replace('*', '') ## e.g. ELEKTRA*.MX
 
     ticker = msn2reuters(ticker)
 
@@ -303,20 +303,20 @@ def unknown2reuters(ticker):
         ticker = d_bw2reuters[ticker]
 
     if ticker.endswith('.ME'):
-        ticker.replace('.ME','.MEP')
+        ticker.replace('.ME', '.MEP')
 
     return ticker
 
 
 def unknown2businessweek(ticker):
 
-    if ticker[-2:] in ['.A','.B',]:
-        ticker = ticker[:-2]+ticker[-2:].replace('.','/') ## e.g. BT/A:LN
-    if ticker[-1] in ['a','b',] and 'SE:' not in ticker:
+    if ticker[-2:] in ['.A', '.B',]:
+        ticker = ticker[:-2]+ticker[-2:].replace('.', '/') ## e.g. BT/A:LN
+    if ticker[-1] in ['a', 'b',] and 'SE:' not in ticker:
         ticker = ticker[:-1]+'/'+ticker[-1:] ## e.g. JW/A, TCK/A:CN (not TEL2b:SS)
 
     ## Reuters
-    if ticker[-2:] in ['.O','.N',]:
+    if ticker[-2:] in ['.O', '.N',]:
         ticker = ticker[:-2]
 
     if ticker[-1] == '.': ## e.g. RB/:LN
@@ -328,16 +328,16 @@ def unknown2businessweek(ticker):
         while ticker[0] == '0':
             ticker = ticker[1:]
     if '-' in ticker:
-        ticker = ticker.replace('-','') ## e.g. SKF-B.ST > SKFB:SS (not BT/A:LN)
+        ticker = ticker.replace('-', '') ## e.g. SKF-B.ST > SKFB:SS (not BT/A:LN)
     if '.' in ticker:
-        ticker = ticker.replace('.',':') ## e.g. 0386.HK > 386:HK
+        ticker = ticker.replace('.', ': ') ## e.g. 0386.HK > 386:HK
 
-    if ':' in ticker:
-        index = ticker.rindex(':')
+    if ': ' in ticker:
+        index = ticker.rindex(': ')
         print(ticker)
-        ticker = ticker[:index]+':'+d_yahoo2bw[ticker[index+1:]]
+        ticker = ticker[:index]+': '+d_yahoo2bw[ticker[index+1:]]
 
-##    ticker = ticker.replace(':O','') ## Reuters can't differentiate if not .O/.N suffix (after Oslo)
+##    ticker = ticker.replace(':O', '') ## Reuters can't differentiate if not .O/.N suffix (after Oslo)
 
     return ticker
 
@@ -348,8 +348,8 @@ def msn2reuters(ticker):
         ticker = ticker[:-1] ## e.g. GB:RB. > RB.L
 
     ## ticker, msn2reuters
-    if ':' in ticker:
-        index = ticker.index(':')
+    if ': ' in ticker:
+        index = ticker.index(': ')
         ticker_reuters = ticker[index+1:]+'.'+d_msn2yahoo[ticker[:index]]
     else:
         if ticker in d_indexes['IXIC'] and '.' not in ticker:
@@ -358,8 +358,8 @@ def msn2reuters(ticker):
             ticker_reuters = ticker+'.N'
         else:
             ticker_reuters = ticker
-    ticker_reuters = ticker_reuters.replace('.a','a')
-    ticker_reuters = ticker_reuters.replace('.b','b')
+    ticker_reuters = ticker_reuters.replace('.a', 'a')
+    ticker_reuters = ticker_reuters.replace('.b', 'b')
 
     return ticker_reuters
 
@@ -377,12 +377,12 @@ def yahoo2reuters(ticker):
 
 def msn2yahoo(ticker):
 
-    if ':' in ticker:
-        index = ticker.index(':')
+    if ': ' in ticker:
+        index = ticker.index(': ')
         ticker = ticker[index+1:]+'.'+d_msn2yahoo[ticker[:index]]
     ## Coloplast and Novo Nordisk and DSV
     if 'b.CO' in ticker:
-        ticker = ticker.replace('b.CO','-B.CO')
+        ticker = ticker.replace('b.CO', '-B.CO')
 
     return ticker
 
@@ -398,11 +398,11 @@ def yahoo2msn(ticker):
             or
             '.ST' in ticker
             ):
-            ticker_msn = ticker_msn.replace('a','-A')
-            ticker_msn = ticker_msn.replace('b','-B') ## SE:TEL2-B
+            ticker_msn = ticker_msn.replace('a', '-A')
+            ticker_msn = ticker_msn.replace('b', '-B') ## SE:TEL2-B
         else:
-            ticker_msn = ticker_msn.replace('a','.A') ## BFa
-            ticker_msn = ticker_msn.replace('b','.B') ## HUBb,BFb
+            ticker_msn = ticker_msn.replace('a', '.A') ## BFa
+            ticker_msn = ticker_msn.replace('b', '.B') ## HUBb,BFb
 
     return ticker_msn
 
@@ -414,9 +414,9 @@ def unknown2ADR(ticker):
 
 def unknown2advfn(ticker):
 
-    ticker = ticker.replace('GB:','LSE:')  # London
-    ticker = ticker.replace('DE:','FWB:')  # Frankfurt
-    ticker = ticker.replace('JP:','TSE:')  # Tokyo SE
+    ticker = ticker.replace('GB:', 'LSE:')  # London
+    ticker = ticker.replace('DE:', 'FWB:')  # Frankfurt
+    ticker = ticker.replace('JP:', 'TSE:')  # Tokyo SE
     if ticker.endswith('.CO'):
         ticker = 'PLUS:'+ticker[:-3]
     if ticker.endswith('.L'):
@@ -452,7 +452,7 @@ def unknown2ft(ticker):
 ##            ticker = ticker[:-2]+'B'  # e.g. VIA.B -> VIAB
             ticker = ticker  # e.g. BF.B -> BF.B
 
-    ticker = ticker.replace('-','+')
+    ticker = ticker.replace('-', '+')
 
     if ticker.startswith('DE:'):
         if ticker[3:] in ('HEN3', 'VOW3'):
@@ -509,7 +509,7 @@ def unknown2ft(ticker):
     if ticker.endswith('.ST'):
         ticker = ticker[:-3]+':STO'  # Stockholm, Sweden
     if ticker.endswith('.JNB'):
-        ticker = ticker[:-4]+':JNB'  # 
+        ticker = ticker[:-4]+':JNB'  # Johannesburg, South Africa
     if ticker.endswith('.IC'):
         ticker = ticker[:-3]+':ICX'  # Iceland
     if ticker.endswith('.HE'):
@@ -560,12 +560,12 @@ def unknown2ft(ticker):
 
 
 d_msn2currency = {
-    'GB':'British Pounds',
-    'AU':'Australian Dollars',
-    'ES':'Euro','IT':'Euro','BE':'Euro','NL':'Euro','FR':'Euro','DE':'Euro',
-    'SE':'Swedish Krona',
-    'JP':'Yen',
-    'CA':'Canadian Dollars',
+    'GB': 'British Pounds',
+    'AU': 'Australian Dollars',
+    'ES': 'Euro', 'IT': 'Euro', 'BE': 'Euro', 'NL': 'Euro', 'FR': 'Euro', 'DE': 'Euro',
+    'SE': 'Swedish Krona',
+    'JP': 'Yen',
+    'CA': 'Canadian Dollars',
     }
 
 if __name__ == '__main__':
