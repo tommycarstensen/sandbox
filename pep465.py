@@ -7,7 +7,7 @@ import profile
 
 
 s1 = '''
-def multiply_numpy():
+def multiply_numpy_dot():
 
     m1 = numpy.random.rand(3, 3)
     m2 = numpy.random.rand(3, 3)
@@ -25,7 +25,7 @@ def multiply_pep465():
 '''
 
 s3 = '''
-def multiply_numpy():
+def multiply_numpy_matmul():
 
     m1 = numpy.random.rand(3, 3)
     m2 = numpy.random.rand(3, 3)
