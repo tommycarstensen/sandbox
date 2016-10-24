@@ -7,30 +7,21 @@ import profile
 
 
 s1 = '''
-def multiply_numpy_dot():
-
-    m1 = numpy.random.rand(3, 3)
-    m2 = numpy.random.rand(3, 3)
-
-    return numpy.dot(m1, m2)
+m1 = numpy.random.rand(3, 3)
+m2 = numpy.random.rand(3, 3)
+numpy.dot(m1, m2)
 '''
 
 s2 = '''
-def multiply_pep465():
-
-    m1 = numpy.random.rand(3, 3)
-    m2 = numpy.random.rand(3, 3)
-
-    return m1 @ m2
+m1 = numpy.random.rand(3, 3)
+m2 = numpy.random.rand(3, 3)
+m1 @ m2
 '''
 
 s3 = '''
-def multiply_numpy_matmul():
-
-    m1 = numpy.random.rand(3, 3)
-    m2 = numpy.random.rand(3, 3)
-
-    return numpy.matmul(m1, m2)
+m1 = numpy.random.rand(3, 3)
+m2 = numpy.random.rand(3, 3)
+numpy.matmul(m1, m2)
 '''
 
 
@@ -47,10 +38,10 @@ def main():
     print(m3b)
     print(m3c)
 
-    n = 10**7
-    print(timeit.timeit(s1, number=n))
-    print(timeit.timeit(s2, number=n))
-    print(timeit.timeit(s3, number=n))
+    n = 10**5
+    print(timeit.timeit(s1, number=n, setup='import numpy'))
+    print(timeit.timeit(s2, number=n, setup='import numpy'))
+    print(timeit.timeit(s3, number=n, setup='import numpy'))
 
     return
 
