@@ -5,9 +5,8 @@
 
 ## Import the requests module to communicate with FitBit.
 import requests
-## Import the sys module to parse command line options.
-## Module argparse also an option.
-import sys
+## Import the argparse module to parse command line options.
+import argparse
 ## Import the module os to check for file existence.
 import os
 ## Import the module pandas to read csv files and create data frames.
@@ -21,48 +20,45 @@ import matplotlib.pyplot as plt
 def main():
 
     ## Parse command line options.
-    consumer_key = sys.argv[1]
-    assert len(consumer_key) == 6
-    date1 = sys.argv[2]
-    assert len(date1) == 10
-    access_token = sys.argv[3]
-    sangerID = sys.argv[4]
+    args = parse_args()
+    assert len(args.consumer_key) == 6
+    assert len(args.date1) == 10
 
-    date2 = datetime.datetime.strftime(datetime.datetime.strptime(
-        date1, '%Y-%m-%d') + datetime.timedelta(days=1), '%Y-%m-%d')
+    args.date2 = datetime.datetime.strftime(datetime.datetime.strptime(
+        args.date1, '%Y-%m-%d') + datetime.timedelta(days=1), '%Y-%m-%d')
 
     ## https://dev.fitbit.com/docs/activity/#get-activity-intraday-time-series
-    parse_fitbit('steps', date1, date2, consumer_key, access_token, '1min')
+    parse_fitbit('steps', args, '1min')
 
     ## https://dev.fitbit.com/docs/heart-rate/#get-heart-rate-intraday-time-series
-    parse_fitbit('heart', date1, date2, consumer_key, access_token, '1sec')
+    parse_fitbit('heart', args, '1sec')
 
     ## Read Actigraph data into a Pandas dataframe.
-    with open('{}.csv'.format(sangerID)) as f:
+    with open('{}.csv'.format(args.sangerID)) as f:
         for line in f:
             if line.startswith('Start Time'):
                 break
         start_time = line.rstrip().split()[2]
     df = pd.read_csv(
-        '{}.csv'.format(sangerID),
+        '{}.csv'.format(args.sangerID),
         header=10,
         usecols=('Steps', 'HR',),
         )
 ##    df.index = pd.date_range(date+' '+start_time, periods=len(df), freq='s')
-    df.index = pd.to_datetime(df.index, origin=date1+' '+start_time, unit='s')
+    df.index = pd.to_datetime(df.index, origin=args.date1+' '+start_time, unit='s')
 
     df1 = parse_csv(
-        '{}.{}.heart.csv'.format(consumer_key, date1), ('HR_Fitbit',), date1,)
+        '{}.{}.heart.csv'.format(args.consumer_key, args.date1), ('HR_Fitbit',), args.date1,)
     df2 = parse_csv(
-        '{}.{}.heart.csv'.format(consumer_key, date2), ('HR_Fitbit',), date2,)
+        '{}.{}.heart.csv'.format(args.consumer_key, args.date2), ('HR_Fitbit',), args.date2,)
     df_1sec = df.join(pd.concat([df1, df2]), how='inner')
     df_1sec = df_1sec[df_1sec.HR > 0]  # Tell Louise about this!!! Actigraph many zero!!!
     del df_1sec['Steps']
 
     df1 = parse_csv(
-        '{}.{}.steps.csv'.format(consumer_key, date1), ('Steps_Fitbit',), date1,)
+        '{}.{}.steps.csv'.format(args.consumer_key, args.date1), ('Steps_Fitbit',), args.date1,)
     df2 = parse_csv(
-        '{}.{}.steps.csv'.format(consumer_key, date2), ('Steps_Fitbit',), date2,)
+        '{}.{}.steps.csv'.format(args.consumer_key, args.date2), ('Steps_Fitbit',), args.date2,)
     df_1min = df.resample('T').sum().join(pd.concat([df1, df2]), how='inner')
     df_1min = df_1min[(df_1min.Steps > 0) & (df_1min.Steps_Fitbit > 0)]
     del df_1min['HR']
@@ -71,18 +67,18 @@ def main():
     print('1sec', df_1sec.tail())
     print('1min', df_1min.tail())
 
-    plots(df_1min, df_1sec, consumer_key, sangerID, date1)
+    plots(df_1min, df_1sec, args)
 
     return
 
 
-def plots(df_1min, df_1sec, consumer_key, sangerID, date1):
+def plots(df_1min, df_1sec, args):
 
     for df, activity in ((df_1min, 'Steps'), (df_1sec, 'HR')):
         ## Calculate Pearson correlation coefficient.
         corr = pd.DataFrame.corr(df, method='pearson')
         ## Create title for all plots.
-        title = '{}, {}, {}, {}'.format(activity, consumer_key, sangerID, date1)
+        title = '{}, {}, {}, {}'.format(activity, args.consumer_key, args.sangerID, args.date1)
         ## Plot time series.
         plt.clf()
         fig, ax = plt.subplots()
@@ -99,7 +95,7 @@ def plots(df_1min, df_1sec, consumer_key, sangerID, date1):
             transform=ax.transAxes,
             color='green', fontsize='small',
             )
-        plt.savefig('{}.timeseries.{}.png'.format(consumer_key, activity))
+        plt.savefig('{}.timeseries.{}.png'.format(args.consumer_key, activity))
         ## Calculate mean and diff for BA plot.
         df['mean'] = df.mean(axis=1)
         df['diff'] = df[activity] - df[activity+'_Fitbit']
@@ -117,7 +113,7 @@ def plots(df_1min, df_1sec, consumer_key, sangerID, date1):
             transform=ax.transAxes,
             color='green', fontsize='small',
             )
-        plt.savefig('{}.BA.{}.png'.format(consumer_key, activity))
+        plt.savefig('{}.BA.{}.png'.format(args.consumer_key, activity))
         ## Plot scatter plot.
         plt.clf()
         ax = df.plot(activity, activity+'_Fitbit', kind='scatter')
@@ -132,29 +128,29 @@ def plots(df_1min, df_1sec, consumer_key, sangerID, date1):
             transform=ax.transAxes,
             color='green', fontsize='small',
             )
-        plt.savefig('{}.scatter.{}.png'.format(consumer_key, activity))
+        plt.savefig('{}.scatter.{}.png'.format(args.consumer_key, activity))
 
     return
 
 
-def parse_fitbit(activity, date1, date2, consumer_key, access_token, detail_level):
+def parse_fitbit(activity, args, detail_level):
 
     resource_path = 'activities/{activity}'.format(activity=activity)
 
-    for date in (date1, date2):
+    for date in (args.date1, args.date2):
         url = 'https://api.fitbit.com/1/user/{consumer_key}/{resource_path}/date/{date}/1d/{detail_level}.json'.format(
-            date=date1, consumer_key=consumer_key, resource_path=resource_path,
-            end_date=date, detail_level=detail_level,
+            date=date, consumer_key=args.consumer_key, resource_path=resource_path,
+            detail_level=detail_level,
             )
-        if os.path.isfile('{}.{}.{}.csv'.format(consumer_key, date, activity)):
+        if os.path.isfile('{}.{}.{}.csv'.format(args.consumer_key, date, activity)):
             continue
         response = requests.get(
-            url=url, headers={'Authorization': 'Bearer ' + access_token})
+            url=url, headers={'Authorization': 'Bearer ' + args.access_token})
         if not response.ok:
             print_response_and_exit(response)
         print(date, activity, response.json()['activities-'+activity][0]['value'])
         dataset = response.json()['activities-{}-intraday'.format(activity)]['dataset']
-        with open('{}.{}.{}.csv'.format(consumer_key, date, activity), 'w') as f:
+        with open('{}.{}.{}.csv'.format(args.consumer_key, date, activity), 'w') as f:
             for d in dataset:
                 print(d['time'], d['value'], sep=',', file=f)
 
@@ -183,6 +179,18 @@ def print_response_and_exit(response):
     exit()
 
     return
+
+
+def parse_args():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--sangerID', help='Prefix of Actigraph csv file.', required=True)
+    parser.add_argument('--consumer_key', help='Consumer key from fitbit.com.', required=True)
+    parser.add_argument('--date1', '--date', help='Date in format YYYY-MM-DD', required=True)
+    parser.add_argument('--access_token', help='Access token from dev.fitbit.com', required=True)
+
+    return parser.parse_args()
+
 
 if __name__ == '__main__':
     main()
