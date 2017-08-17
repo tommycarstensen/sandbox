@@ -38,7 +38,7 @@ def main():
     parse_fitbit('heart', date1, date2, consumer_key, access_token, '1sec')
 
     ## Read Actigraph data into a Pandas dataframe.
-    with open('945.csv') as f:
+    with open('{}.csv'.format(sangerID)) as f:
         for line in f:
             if line.startswith('Start Time'):
                 break
@@ -71,10 +71,6 @@ def main():
     print('1sec', df_1sec.tail())
     print('1min', df_1min.tail())
 
-##    start = datetime.time(15,55,0)  # tmp!!!
-##    end = datetime.time(16,35,0)  # tmp!!!
-##    df_1min = df_1min.between_time(start, end)  # tmp!!!
-##    df_1sec = df_1sec.between_time(start, end)  # tmp!!!
     plots(df_1min, df_1sec, consumer_key, sangerID, date1)
 
     return
